@@ -34,7 +34,7 @@ using namespace plv;
 Snapshot::Snapshot() :
         m_makeSnapshot(true)
 {
-    m_inputPin = createInputPin<OpenCVImage>( INPUT_PIN_NAME, this, IInputPin::REQUIRED );
+    m_inputPin = createInputPin<OpenCVImage>( INPUT_PIN_NAME, this, IInputPin::INPUT_REQUIRED );
     m_outputPin = createOutputPin<OpenCVImage>( OUTPUT_PIN_NAME, this );
 }
 
@@ -46,10 +46,18 @@ void Snapshot::init() throw (PipelineException)
 {
     m_imgSnapshot = RefPtr<OpenCVImage>();
 }
+
 void Snapshot::start() throw (PipelineException)
 {
     m_imgSnapshot = RefPtr<OpenCVImage>();
 }
+
+void Snapshot::stop() throw (PipelineException)
+{
+    m_imgSnapshot = RefPtr<OpenCVImage>();
+}
+
+
 bool Snapshot::isReadyForProcessing() const
 {
     return m_inputPin->hasData();
@@ -61,7 +69,7 @@ void Snapshot::process()
     assert(m_outputPin != 0);
     RefPtr<OpenCVImage> imgIn = m_inputPin->get();
 
-    //enforce snapshot on firt frame, when we don't have a snapshot yet
+    //enforce snapshot on first frame, when we don't have a snapshot yet
     if ((!m_makeSnapshot) && m_imgSnapshot.isNull())setMakeSnapshot(true);
 
     RefPtr<OpenCVImage> imgOut = OpenCVImageFactory::instance()->get(

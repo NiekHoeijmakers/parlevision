@@ -40,6 +40,8 @@ namespace plv {
         ~ImageColorConvert();
 
         virtual void init() throw (PipelineException);
+        virtual void start() throw (PipelineException);
+        virtual void stop() throw (PipelineException);
         //virtual bool isBootstrapped() const;
         virtual bool isReadyForProcessing() const;
         virtual void process();
@@ -54,7 +56,6 @@ namespace plv {
         void setConversionType(plv::Enum e) { m_conversionType = e; emit(conversionTypeChanged(e)); }
 
     private:
-        int nearestOdd(int i);
 
         InputPin<OpenCVImage>* m_inputPin;
         OutputPin<OpenCVImage>* m_outputPin;

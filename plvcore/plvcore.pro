@@ -69,6 +69,7 @@ SOURCES += \
     src/ToImageFile.cpp \
     src/Trigger.cpp \
     src/ActivationTrigger.cpp
+    src/ViolaJonesFaceDetector.cpp
 
 HEADERS += ../include/plvcore/plvcore_global.h \
     ../include/plvcore/Application.h \
@@ -104,3 +105,4 @@ HEADERS += ../include/plvcore/plvcore_global.h \
     ../include/plvcore/ToImageFile.h \
     ../include/plvcore/Trigger.h \
     ../include/plvcore/ActivationTrigger.h
+    ../include/plvcore/ViolaJonesFaceDetector.h
