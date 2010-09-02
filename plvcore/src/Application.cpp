@@ -47,6 +47,8 @@
 #include "ImageFlip.h"
 #include "ImageSmooth.h"
 #include "Snapshot.h"
+#include "ToImageFile.h"
+#include "Trigger.h"
 
 using namespace plv;
 
@@ -88,6 +90,8 @@ void Application::loadBuiltins()
     plvRegisterPipelineElement<plv::ImageFlip>("plv::ImageFlip", "Flip Image");
     plvRegisterPipelineElement<plv::ImageSmooth>("plv::ImageSmooth", "Smooth");
     plvRegisterPipelineElement<plv::Snapshot>("plv::Snapshot", "Snapshot");
+    plvRegisterPipelineElement<plv::ToImageFile>("plv::ToImageFile", "ToImageFile");
+    plvRegisterPipelineElement<plv::Trigger>("plv::Trigger", "Trigger");
     //consumers
 }
 

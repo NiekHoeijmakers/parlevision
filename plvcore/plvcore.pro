@@ -65,7 +65,10 @@ SOURCES += \
     src/Sub.cpp \
     src/Snapshot.cpp \
     src/Diff.cpp \
-    src/DelayImage.cpp
+    src/DelayImage.cpp \
+    src/ToImageFile.cpp \
+    src/Trigger.cpp \
+    src/ActivationTrigger.cpp
 
 HEADERS += ../include/plvcore/plvcore_global.h \
     ../include/plvcore/Application.h \
@@ -97,4 +100,7 @@ HEADERS += ../include/plvcore/plvcore_global.h \
     ../include/plvcore/Sub.h \
     ../include/plvcore/Snapshot.h \
     ../include/plvcore/Diff.h \
-    ../include/plvcore/DelayImage.h
+    ../include/plvcore/DelayImage.h \
+    ../include/plvcore/ToImageFile.h \
+    ../include/plvcore/Trigger.h \
+    ../include/plvcore/ActivationTrigger.h
