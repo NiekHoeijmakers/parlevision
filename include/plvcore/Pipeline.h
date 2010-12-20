@@ -45,7 +45,7 @@ namespace plv
     class IOutputPin;
     class Scheduler;
 
-    class Pipeline : public QThread, public RefCounted
+    class PLVCORE_EXPORT Pipeline : public QThread, public RefCounted
     {
         Q_OBJECT
     public:
@@ -57,7 +57,7 @@ namespace plv
         /** Refcounted so only call this directly if you know what you are
           * doing
           */
-        ~Pipeline();
+        virtual ~Pipeline();
 
         /** Initialise this Pipeline. Not yet reentrant
           */
@@ -84,21 +84,13 @@ namespace plv
           */
         bool canAddElement( PipelineElement* child );
 
-        /** Remove PipelineElement child from this pipeline.
-          * It will no longer be updated.
-          * Caller should ensure the parent of the child is updated.
-          * @emits elementAdded(child)
-          */
-        //void removeElement( PipelineElement* child );
-
-        /** Removes the PipelineElement with the given internal id from this pipeline.
+       /** Removes the PipelineElement with the given internal id from this pipeline.
           * The ID should be the one returned by add( PipelineElement* child );
           * @see remove( PipelineElement* child );
           */
         void removeElement( int id );
 
-        void removeAllElements();
-
+        /** @returns the PipelineElement with the given id or 0 if it does not exist */
         PipelineElement* getElement( int id );
 
         /** Get all the PipelineElements that make up this Pipeline. */
@@ -107,11 +99,20 @@ namespace plv
         /** Get all the PinConnections that make up this Pipeline. */
         const PipelineConnectionsList& getConnections() const;
 
+
+        /** returns true if pins can be connected. Returns false if not. If not
+          * possible reason contains a message stating the reason for failure
+          */
+        bool canConnectPins( IOutputPin* outputPin, IInputPin* inputPin,
+                                       QString reason );
+
         /** Create a PinConnnection between the given InputPin and outputPin
           * @emits connectionAdded(connection)
           */
         void connectPins( IOutputPin* outputPin, IInputPin* inputPin )
-                throw ( IncompatibleTypeException, DuplicateConnectionException );
+            throw(PinConnection::IllegalConnectionException,
+                  PinConnection::IncompatibleTypeException,
+                  PinConnection::DuplicateConnectionException);
 
         /** Disconnects and removes a single connection.
           * Quite slow O(N) since it traverses a linked list.
@@ -119,14 +120,6 @@ namespace plv
           * @emits connectionRemoved(connection)
           */
         void disconnect( PinConnection* connection );
-
-        /** Disconnects and removes all connections for this element
-          */
-        void removeConnectionsForElement( PipelineElement* element );
-
-        /** Disconnects and removes all connections.
-          */
-        void removeAllConnections();
 
     protected:
         PipelineElementMap m_children;
@@ -138,13 +131,29 @@ namespace plv
           */
         virtual void run();
 
-        int getNewPipelineElementId();
-
     private:
         bool m_stopRequested;
         bool m_running;
         Scheduler* m_scheduler;
-        //QSet<int> m_initialized;
+
+        /** does a disconnect on PinConnection. Private thread unsafe function
+          * use disconnect( PinConnection* ) public function when calling
+          * from outside this class
+          */
+        void threadUnsafeDisconnect( PinConnection* connection );
+
+        /** Disconnects and removes all connections for this element
+          */
+        void removeConnectionsForElement( PipelineElement* element );
+
+        /** Disconnects and removes all connections.
+          */
+        void removeAllConnections();
+
+        /** Removes all elements from the pipeline */
+        void removeAllElements();
+
+        int getNewPipelineElementId();
 
     signals:
         void elementAdded(plv::RefPtr<plv::PipelineElement>);
@@ -159,6 +168,8 @@ namespace plv
 
         void started();
         void stopped();
+
+        void tick();
 
     public slots:
         void start();

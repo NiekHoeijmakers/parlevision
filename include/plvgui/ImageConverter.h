@@ -22,19 +22,13 @@
 #ifndef IMAGECONVERTER_H
 #define IMAGECONVERTER_H
 
-#include "RefPtr.h"
-
+#include <QScopedPointer>
+#include <plvcore/RefPtr.h>
 #include <QObject>
 #include <opencv/cv.h>
 #include <stdexcept>
-
 #include <QImage>
-
-namespace plv {
-    class OpenCVImage;
-}
-
-using namespace plv;
+#include <plvcore/CvMatData.h>
 
 namespace plvgui
 {
@@ -45,7 +39,7 @@ namespace plvgui
                 std::runtime_error( why ) {}
     };
 
-    class ImageConverter : public QObject, public RefCounted
+    class ImageConverter : public QObject, public plv::RefCounted
     {
         Q_OBJECT
 
@@ -56,16 +50,16 @@ namespace plvgui
           * as converting is done asynchronously.
           * @emits converted(QImage*) when converting has finished;
           */
-        void convert_OpenCVImage( plv::RefPtr<plv::OpenCVImage> img );
+        void convertCvMatData( const plv::CvMatData& data );
 
     private:
         static ImageConverter* m_instance;
-        void convert(plv::RefPtr<plv::OpenCVImage> img);
+        void convert( const plv::CvMatData mat );
 
         /** Converts an OpenCV iplImage to a QImage.
           * @throw ImageConversionException when conversion fails.
           */
-        static QImage iplImageToQImage( const IplImage* img )
+        static QImage cvMatToQImage( const cv::Mat mat )
                 throw( ImageConversionException );
 
     signals:

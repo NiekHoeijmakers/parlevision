@@ -24,21 +24,21 @@
 
 #include "PipelineElement.h"
 
-namespace plv {
-
-    class PipelineProcessor : public PipelineElement
+namespace plv
+{
+    class PLVCORE_EXPORT PipelineProcessor : public PipelineElement
     {
     public:
         PipelineProcessor();
-        ~PipelineProcessor();
+        virtual ~PipelineProcessor();
 
-        // pure virtual methods inherited from PipelineElement
-        // need to be implemented in derivations of this class
-        virtual void init() throw (PipelineException) = 0;
-        virtual bool isReadyForProcessing() const = 0;
-        virtual void process() = 0;
+        /** inherited from PipelineElement. Can be overridden if needed. */
+        virtual bool isReadyForProcessing() const { return true; }
 
-        //virtual bool isBootstrapped() const = 0;
+    private:
+        virtual void __init();
+        virtual bool __isReadyForProcessing() const;
+        virtual void __process();
     };
 
 }

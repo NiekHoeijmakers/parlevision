@@ -22,18 +22,32 @@
 #ifndef PIPELINEPRODUCER_H
 #define PIPELINEPRODUCER_H
 
-#include <map>
 #include "RefPtr.h"
 #include "PipelineElement.h"
 
-namespace plv {
-
-    class PipelineProducer : public PipelineElement
+namespace plv
+{
+    class PLVCORE_EXPORT PipelineProducer : public PipelineElement
     {
     public:
         PipelineProducer();
         virtual ~PipelineProducer();
-        PipelineProducer(const PipelineProducer&);
+
+    protected:
+        unsigned int m_serial;
+
+        inline unsigned int getNextSerial()
+        {
+            ++m_serial;
+            /** unsigned int will wrap around */
+            if( m_serial == 0 ) ++m_serial;
+            return m_serial;
+        }
+
+    private:
+        virtual void __init();
+        virtual bool __isReadyForProcessing() const;
+        virtual void __process();
     };
 
 }

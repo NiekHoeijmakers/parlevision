@@ -24,13 +24,17 @@
 
 class QCoreApplication;
 
+#include "plvglobal.h"
+
 namespace plv
 {
-    class Application
+    class PLVCORE_EXPORT Application
     {
     public:
         Application(QCoreApplication* app);
+        ~Application();
         void init();
+        void deinit();
 
     private:
         void loadBuiltins();

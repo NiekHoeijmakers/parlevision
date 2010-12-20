@@ -25,13 +25,11 @@
 #include <QGraphicsObject>
 #include <QString>
 
-#include "RefPtr.h"
-#include "PipelineElement.h"
+#include <plvcore/RefPtr.h>
+#include <plvcore/PipelineElement.h>
 
 class QGraphicsSceneDragDropEvent;
 class QVariant;
-
-using namespace plv;
 
 namespace plv
 {
@@ -52,8 +50,9 @@ namespace plvgui
                               Qt::WindowFlags wFlags = 0);
 
         void addLine(ConnectionLine* line, QString pin);
-        PinWidget* getWidgetFor(const Pin* p) const { return pinWidgets[p]; }
-        plv::RefPtr<plv::PipelineElement> getElement() const { return element; }
+
+        inline PinWidget* getWidgetFor(const plv::Pin* p) const { return pinWidgets[p]; }
+        inline plv::RefPtr<plv::PipelineElement> getElement() const { return element; }
 
         virtual QRectF boundingRect() const;
         virtual bool event(QEvent * event);

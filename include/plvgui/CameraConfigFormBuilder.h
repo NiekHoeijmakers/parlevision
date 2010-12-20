@@ -24,16 +24,12 @@
 
 #include "ElementConfigFormBuilder.h"
 #include <QWidget>
-#include "RefPtr.h"
+#include <plvcore/RefPtr.h>
+#include <plvopencv/CameraProducer.h>
 
 namespace Ui
 {
     class CameraConfigForm;
-}
-
-namespace plv
-{
-    class CameraProducer;
 }
 
 namespace plvgui
@@ -41,20 +37,18 @@ namespace plvgui
     class CameraForm : public QWidget
     {
     public:
-        CameraForm(CameraProducer* producer, QWidget* parent=0);
+        CameraForm(plvopencv::CameraProducer* producer, QWidget* parent=0);
     private:
         Ui::CameraConfigForm* ui;
-        RefPtr<CameraProducer> producer;
+        plv::RefPtr<plvopencv::CameraProducer> producer;
     };
 
-
-
-    class CameraConfigFormBuilder : public ElementConfigFormBuilder
+    class PLVGUI_EXPORT CameraConfigFormBuilder : public ElementConfigFormBuilder
     {
         Q_OBJECT
 
     public:
-        virtual QWidget* buildForm(PipelineElement* element, QWidget* parent=0);
+        virtual QWidget* buildForm(plv::PipelineElement* element, QWidget* parent=0);
     };
 }
 
