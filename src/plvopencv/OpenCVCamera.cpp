@@ -246,6 +246,7 @@ CvMatData OpenCVCamera::getFrame()
 
     if( !status )
     {
+        qDebug() << "Error wrong status, returning without data!";
         return 0;
     }
 

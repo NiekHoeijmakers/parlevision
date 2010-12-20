@@ -62,6 +62,7 @@ void Application::deinit()
 void Application::loadBuiltins()
 {
     // register classes with Qt so they can be used in signals and slots
+    qRegisterMetaType< QVariant >("QVariant");
     qRegisterMetaType< plv::Data >("plv::Data");
     qRegisterMetaType< plv::Enum >( "plv::Enum" );
     qRegisterMetaType< plv::CvMatData >( "plv::CvMatData" );
