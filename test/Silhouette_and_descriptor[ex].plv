@@ -1,0 +1,215 @@
+<pipeline>
+ <elements>
+  <element id="0" name="plvopencv::ImageSequenceLoader">
+   <properties>
+    <startLoading>false</startLoading>
+    <reset>false</reset>
+    <filename>img</filename>
+    <directory>C:/local/NiekHoeijmakers/Experiments/Uitgezochte data/Umbrella/01</directory>
+    <fileFormat>Portable Network Graphics - *.png</fileFormat>
+    <startNr>1030</startNr>
+    <EndNr>1055</EndNr>
+    <sceneCoordX>58</sceneCoordX>
+    <sceneCoordY>212</sceneCoordY>
+   </properties>
+  </element>
+  <element id="1" name="plvopencv::ImageLoader">
+   <properties>
+    <filename>back1009.png</filename>
+    <directory>C:/local/NiekHoeijmakers/Experiments/background</directory>
+    <sceneCoordX>81</sceneCoordX>
+    <sceneCoordY>58</sceneCoordY>
+   </properties>
+  </element>
+  <element id="2" name="plvopencv::ImageColorConvert">
+   <properties>
+    <conversionType>CV_RGB2GRAY</conversionType>
+    <sceneCoordX>316</sceneCoordX>
+    <sceneCoordY>243</sceneCoordY>
+   </properties>
+  </element>
+  <element id="3" name="plvopencv::ImageThreshold">
+   <properties>
+    <method>CV_THRESH_BINARY</method>
+    <threshold>38</threshold>
+    <maxValue>255</maxValue>
+    <sceneCoordX>276</sceneCoordX>
+    <sceneCoordY>416</sceneCoordY>
+   </properties>
+  </element>
+  <element id="4" name="plvopencv::Xor">
+   <properties>
+    <sceneCoordX>695</sceneCoordX>
+    <sceneCoordY>162</sceneCoordY>
+   </properties>
+  </element>
+  <element id="5" name="plvopencv::Diff">
+   <properties>
+    <sceneCoordX>311</sceneCoordX>
+    <sceneCoordY>133</sceneCoordY>
+   </properties>
+  </element>
+  <element id="6" name="plvopencv::ImageSmooth">
+   <properties>
+    <method>CV_MEDIAN</method>
+    <one>7</one>
+    <two>1</two>
+    <three>0</three>
+    <four>0</four>
+    <sceneCoordX>324</sceneCoordX>
+    <sceneCoordY>329</sceneCoordY>
+   </properties>
+  </element>
+  <element id="7" name="plvopencv::ImageLoader">
+   <properties>
+    <filename>[Silh]Umbrella_1.png</filename>
+    <directory>C:/local/NiekHoeijmakers/Experiments/Silhouette data/Umbrella</directory>
+    <sceneCoordX>501</sceneCoordX>
+    <sceneCoordY>178</sceneCoordY>
+   </properties>
+  </element>
+  <element id="8" name="plvopencv::Multiply">
+   <properties>
+    <scale>0.004</scale>
+    <sceneCoordX>693</sceneCoordX>
+    <sceneCoordY>296</sceneCoordY>
+   </properties>
+  </element>
+  <element id="9" name="plvopencv::ImageLoader">
+   <properties>
+    <filename>[Weights_XOR]Umbrella_1.png</filename>
+    <directory>C:/local/NiekHoeijmakers/Experiments/Silhouette data/Umbrella</directory>
+    <sceneCoordX>492</sceneCoordX>
+    <sceneCoordY>297</sceneCoordY>
+   </properties>
+  </element>
+  <element id="10" name="plvopencv::Sum">
+   <properties>
+    <sceneCoordX>693</sceneCoordX>
+    <sceneCoordY>420</sceneCoordY>
+   </properties>
+  </element>
+  <element id="11" name="plvopencv::ScalarToFile">
+   <properties>
+    <doSave>true</doSave>
+    <filename>Umbrella_01_XOR_1</filename>
+    <directory>C:/local/NiekHoeijmakers/Experiments/dump/per persoon/umbrella</directory>
+    <fileFormat>Comma Separated Values - *.csv</fileFormat>
+    <sceneCoordX>963</sceneCoordX>
+    <sceneCoordY>414</sceneCoordY>
+   </properties>
+  </element>
+ </elements>
+ <connections>
+  <connection>
+   <sink>
+    <pinName>input</pinName>
+    <processorId>6</processorId>
+   </sink>
+   <source>
+    <pinName>output</pinName>
+    <processorId>2</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>input 1</pinName>
+    <processorId>5</processorId>
+   </sink>
+   <source>
+    <pinName>image_output</pinName>
+    <processorId>1</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>input</pinName>
+    <processorId>2</processorId>
+   </sink>
+   <source>
+    <pinName>output</pinName>
+    <processorId>5</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>image_input</pinName>
+    <processorId>3</processorId>
+   </sink>
+   <source>
+    <pinName>output</pinName>
+    <processorId>6</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>image_input 1</pinName>
+    <processorId>4</processorId>
+   </sink>
+   <source>
+    <pinName>image_output</pinName>
+    <processorId>3</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>image_input 2</pinName>
+    <processorId>4</processorId>
+   </sink>
+   <source>
+    <pinName>image_output</pinName>
+    <processorId>7</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>image_input 1</pinName>
+    <processorId>8</processorId>
+   </sink>
+   <source>
+    <pinName>image_output</pinName>
+    <processorId>9</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>image_input 2</pinName>
+    <processorId>8</processorId>
+   </sink>
+   <source>
+    <pinName>image_output</pinName>
+    <processorId>4</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>image_input</pinName>
+    <processorId>10</processorId>
+   </sink>
+   <source>
+    <pinName>image_output</pinName>
+    <processorId>8</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>scalar_input</pinName>
+    <processorId>11</processorId>
+   </sink>
+   <source>
+    <pinName>scalar_output</pinName>
+    <processorId>10</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>input 2</pinName>
+    <processorId>5</processorId>
+   </sink>
+   <source>
+    <pinName>image_output</pinName>
+    <processorId>0</processorId>
+   </source>
+  </connection>
+ </connections>
+</pipeline>

@@ -1,0 +1,187 @@
+<pipeline>
+ <elements>
+  <element id="0" name="plvopencv::ImageLoader">
+   <properties>
+    <filename>Umbrella_2[edt].png</filename>
+    <directory>C:/local/NiekHoeijmakers/Experiments/Silhouette data/Umbrella</directory>
+    <sceneCoordX>97</sceneCoordX>
+    <sceneCoordY>237</sceneCoordY>
+   </properties>
+  </element>
+  <element id="1" name="plvopencv::ImageLoader">
+   <properties>
+    <filename>background[edt].png</filename>
+    <directory>C:/local/NiekHoeijmakers/Experiments/Silhouettes</directory>
+    <sceneCoordX>81</sceneCoordX>
+    <sceneCoordY>58</sceneCoordY>
+   </properties>
+  </element>
+  <element id="2" name="plvopencv::ImageColorConvert">
+   <properties>
+    <conversionType>CV_RGB2GRAY</conversionType>
+    <sceneCoordX>489</sceneCoordX>
+    <sceneCoordY>133</sceneCoordY>
+   </properties>
+  </element>
+  <element id="3" name="plvopencv::ImageThreshold">
+   <properties>
+    <method>CV_THRESH_BINARY</method>
+    <threshold>38</threshold>
+    <maxValue>255</maxValue>
+    <sceneCoordX>875</sceneCoordX>
+    <sceneCoordY>133</sceneCoordY>
+   </properties>
+  </element>
+  <element id="4" name="plvopencv::ImageToFile">
+   <properties>
+    <doSave>false</doSave>
+    <filename>[Silh]Umbrella_</filename>
+    <directory>C:/local/NiekHoeijmakers/Experiments/Silhouette data/Umbrella</directory>
+    <fileFormat>Portable Network Graphics - *.png</fileFormat>
+    <suffixNr>1003</suffixNr>
+    <autoIncSuf>true</autoIncSuf>
+    <sceneCoordX>1124</sceneCoordX>
+    <sceneCoordY>135</sceneCoordY>
+   </properties>
+  </element>
+  <element id="5" name="plvopencv::Diff">
+   <properties>
+    <sceneCoordX>311</sceneCoordX>
+    <sceneCoordY>133</sceneCoordY>
+   </properties>
+  </element>
+  <element id="6" name="plvopencv::ImageSmooth">
+   <properties>
+    <method>CV_MEDIAN</method>
+    <one>7</one>
+    <two>1</two>
+    <three>0</three>
+    <four>0</four>
+    <sceneCoordX>683</sceneCoordX>
+    <sceneCoordY>132</sceneCoordY>
+   </properties>
+  </element>
+  <element id="7" name="plvopencv::DistanceTransform">
+   <properties>
+    <useLabels>false</useLabels>
+    <distanceType>CV_DIST_L1</distanceType>
+    <maskSize>3</maskSize>
+    <uMaskValue1>1</uMaskValue1>
+    <uMaskValue2>1</uMaskValue2>
+    <uMaskValue3>1</uMaskValue3>
+    <sceneCoordX>907</sceneCoordX>
+    <sceneCoordY>347</sceneCoordY>
+   </properties>
+  </element>
+  <element id="8" name="plvopencv::Split">
+   <properties>
+    <sceneCoordX>603</sceneCoordX>
+    <sceneCoordY>310</sceneCoordY>
+   </properties>
+  </element>
+  <element id="9" name="plvopencv::ImageToFile">
+   <properties>
+    <doSave>false</doSave>
+    <filename>img</filename>
+    <directory>c:/</directory>
+    <fileFormat>Windows Bitmap - *.bmp</fileFormat>
+    <suffixNr>1002</suffixNr>
+    <autoIncSuf>true</autoIncSuf>
+    <sceneCoordX>1197</sceneCoordX>
+    <sceneCoordY>355</sceneCoordY>
+   </properties>
+  </element>
+ </elements>
+ <connections>
+  <connection>
+   <sink>
+    <pinName>input</pinName>
+    <processorId>6</processorId>
+   </sink>
+   <source>
+    <pinName>output</pinName>
+    <processorId>2</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>input 1</pinName>
+    <processorId>5</processorId>
+   </sink>
+   <source>
+    <pinName>image_output</pinName>
+    <processorId>1</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>input</pinName>
+    <processorId>2</processorId>
+   </sink>
+   <source>
+    <pinName>output</pinName>
+    <processorId>5</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>image_input</pinName>
+    <processorId>3</processorId>
+   </sink>
+   <source>
+    <pinName>output</pinName>
+    <processorId>6</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>input 2</pinName>
+    <processorId>5</processorId>
+   </sink>
+   <source>
+    <pinName>image_output</pinName>
+    <processorId>0</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>image_input</pinName>
+    <processorId>4</processorId>
+   </sink>
+   <source>
+    <pinName>image_output</pinName>
+    <processorId>3</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>multi_ch_image</pinName>
+    <processorId>8</processorId>
+   </sink>
+   <source>
+    <pinName>image_output</pinName>
+    <processorId>3</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>8-bit_single-ch</pinName>
+    <processorId>7</processorId>
+   </sink>
+   <source>
+    <pinName>single_ch_image_0</pinName>
+    <processorId>8</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>image_input</pinName>
+    <processorId>9</processorId>
+   </sink>
+   <source>
+    <pinName>32-bit_float_single-ch</pinName>
+    <processorId>7</processorId>
+   </source>
+  </connection>
+ </connections>
+</pipeline>
