@@ -20,7 +20,7 @@ SOURCES +=  plvniek_plugin.cpp \
 #		   ScalarToFile.cpp \
 #		   OpenCVScalar.cpp \
             Multiply.cpp \
-#		   ImageTypeScaleConversion.cpp \
+            ImageTypeScaleConversion.cpp \
             SaveImageToFile.cpp \
             ImageSequenceLoader.cpp \
             ImageLoader.cpp \
@@ -37,7 +37,7 @@ HEADERS +=  ../../include/plvniek/plvniek_plugin.h \
 #		    ../../include/plvniek/ScalarToFile.h \
 #		    ../../include/plvniek/OpenCVScalar.h \
             ../../include/plvniek/Multiply.h \
-#		    ../../include/plvniek/ImageTypeScaleConversion.h \
+            ../../include/plvniek/ImageTypeScaleConversion.h \
             ../../include/plvniek/SaveImageToFile.h \
             ../../include/plvniek/ImageSequenceLoader.h \
             ../../include/plvniek/ImageLoader.h \

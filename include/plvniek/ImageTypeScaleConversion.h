@@ -22,21 +22,27 @@
 #define IMAGETYPESCALECONVERSION_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Pin.h>
+#include <plvcore/Enum.h>
+
+namespace plv
+{
+    class CvMatDataInputPin;
+    class CvMatDataOutputPin;
+}
 
 namespace plvopencv
 {
-    class OpenCVImage;
-
-    /**
-      * Take a bitwise ImageTypeScaleConversion of two images .
-      */
     class ImageTypeScaleConversion : public plv::PipelineProcessor
     {
         Q_OBJECT
         Q_CLASSINFO("author", "Niek Hoeijmakers")
-        Q_CLASSINFO("name", "Type and Scale Conversion")
-        Q_CLASSINFO("description", "A processor that can convert the type of an image, scale the image and/or shift the image.");
+        Q_CLASSINFO("name", "Type conversion")
+        Q_CLASSINFO("description", "A processor that can convert the type of an image. "
+                    "Scaling and/or shifting the image colors is optional. "
+                    "This processor uses cv::Mat::convertTo, see "
+                    "<a href='http://opencv.willowgarage.com/documentation/cpp/core_basic_structures.html#Mat::convertTo'>"
+                    "OpenCV reference"
+                    "</a> for meaning of parameters.");
 
         Q_PROPERTY( plv::Enum type READ getType WRITE setType NOTIFY typeChanged  )
         Q_PROPERTY( double scale READ getScale WRITE setScale NOTIFY scaleChanged  )
@@ -50,9 +56,9 @@ namespace plvopencv
         virtual ~ImageTypeScaleConversion();
 
         /** property methods */
-        plv::Enum getType(){ return m_type; }
-        double getScale() { return m_scale; }
-        double getShift() { return m_shift; }
+        plv::Enum getType();
+        double getScale();
+        double getShift();
 
     signals:
         void typeChanged(plv::Enum newValue);
@@ -60,13 +66,13 @@ namespace plvopencv
         void shiftChanged(double newValue);
 
     public slots:
-        void setType(plv::Enum e){ m_type = e; emit(typeChanged(m_type)); }
-        void setScale(double f) { m_scale = f; emit(scaleChanged(m_scale)); }
-        void setShift(double f) { m_shift = f; emit(shiftChanged(m_shift)); }
+        void setType(plv::Enum e);
+        void setScale(double f);
+        void setShift(double f);
 
     private:
-        plv::InputPin<OpenCVImage>* m_inputPin; // image input
-        plv::OutputPin<OpenCVImage>* m_outputPin; // image output
+        plv::CvMatDataInputPin* m_inputPin; // image input
+        plv::CvMatDataOutputPin* m_outputPin; // image output
 
         plv::Enum m_type;
         double m_scale;

@@ -7,6 +7,7 @@
 #include "Multiply.h"
 #include "Split.h"
 #include "Trigger.h"
+#include "ImageTypeScaleConversion.h"
 
 #include "SaveImageToFile.h"
 
@@ -34,6 +35,7 @@ void PlvNiekPlugin::onLoad()
     plvRegisterPipelineElement<plvopencv::Multiply>();
     plvRegisterPipelineElement<plvopencv::Split>();
     plvRegisterPipelineElement<plvopencv::Trigger>();
+    plvRegisterPipelineElement<plvopencv::ImageTypeScaleConversion>();
     //Consumers
     plvRegisterPipelineElement<plvopencv::SaveImageToFile>();
 }
