@@ -25,16 +25,16 @@
 #include <QMutex>
 #include <plvcore/PipelineProducer.h>
 #include <plvcore/Pin.h>
+#include <plvcore/CvMatData.h>
+#include <plvcore/Enum.h>
 
-#include "OpenCVImage.h"
+namespace plv
+{
+    class CvMatDataOutputPin;
+}
 
 namespace plvopencv
 {
-    class OpenCVImage;
-
-    /**
-      * Take a bitwise ImageSequenceLoader of two images .
-      */
     class ImageSequenceLoader : public plv::PipelineProducer
     {
         Q_OBJECT
@@ -56,20 +56,32 @@ namespace plvopencv
     public:
         ImageSequenceLoader();
         virtual ~ImageSequenceLoader();
-        ImageSequenceLoader(const ImageSequenceLoader&);
 
         /** @returns true if a new frame is available */
         bool isReadyForProcessing() const;
 
 
         /** property methods */
-        bool getStartLoading(){ return m_startLoading; }
-        bool getReset(){ return m_reset;}
-        QString getFilename() { return m_filename; }
-        QString getDirectory() {return m_directory; }
-        plv::Enum getFileFormat() const { return m_fileFormat; }
-        int getStartNr() { return m_startNr; }
-        int getEndNr() { return m_endNr; }
+        bool getStartLoading();
+        void updateStartLoading(bool b){ setStartLoading(b); startLoadingChanged(b); }
+
+        bool getReset();
+        void updateReset(bool b){ setReset(b); resetChanged(b); }
+
+        QString getFilename();
+        void updateFilename(QString s){ setFilename(s); filenameChanged(s); }
+
+        QString getDirectory();
+        void updateDirectory(QString s){ setDirectory(s); directoryChanged(s); }
+
+        plv::Enum getFileFormat() const;
+        void updateFileFormat(plv::Enum e){ setFileFormat(e); fileFormatChanged(e); }
+
+        int getStartNr();
+        void updateStartNr(int i){ setStartNr(i); startNrChanged(i); }
+
+        int getEndNr();
+        void updateEndNr(int i){ setEndNr(i); endNrChanged(i); }
 
     signals:
         void startLoadingChanged (bool newValue);
@@ -81,17 +93,17 @@ namespace plvopencv
         void endNrChanged(int newValue);
 
     public slots:
-        void setStartLoading(bool b) {m_startLoading = b; emit(startLoadingChanged(m_startLoading));}
-        void setReset(bool b) { m_reset = b; emit(resetChanged(m_reset)); }
-        void setFilename(QString s) {m_filename = s; emit(filenameChanged(m_filename));}
+        void setStartLoading(bool b);
+        void setReset(bool b);
+        void setFilename(QString s);
         void setDirectory(QString s);
         void setFileFormat(plv::Enum e);
         void setStartNr(int i);
-        void setEndNr(int i) {m_endNr = i; emit(endNrChanged(m_endNr));}
+        void setEndNr(int i);
 
     protected:
-        plv::RefPtr<OpenCVImage> m_loadedImage;
-        plv::RefPtr< plv::OutputPin<OpenCVImage> > m_outputPin;
+        plv::CvMatData m_loadedImage;
+        plv::CvMatDataOutputPin* m_outputPin;
 
         QMutex m_processMutex;
 

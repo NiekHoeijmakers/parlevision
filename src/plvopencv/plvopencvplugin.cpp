@@ -15,7 +15,7 @@
 #include "ImageCornerHarris.h"
 #include "ImageFlip.h"
 #include "GaussianSmooth.h"
-//#include "ImageThreshold.h"
+#include "ImageThreshold.h"
 //#include "Snapshot.h"
 //#include "ViolaJonesFaceDetector.h"
 //#include "Trigger.h"
@@ -52,6 +52,7 @@ void PlvOpenCVPlugin::onLoad()
     plvRegisterPipelineElement<plvopencv::EdgeDetectorCanny>();
     plvRegisterPipelineElement<plvopencv::ImageColorConvert>();
     plvRegisterPipelineElement<plvopencv::ImageCornerHarris>();
+    plvRegisterPipelineElement<plvopencv::ImageThreshold>();
 
     plvRegisterPipelineElement<plvopencv::PixelSum>();
 
@@ -60,7 +61,6 @@ void PlvOpenCVPlugin::onLoad()
 //    plvRegisterPipelineElement<plvopencv::Trigger>();
 //    plvRegisterPipelineElement<plvopencv::SaveImageToFile>();
 //    plvRegisterPipelineElement<plvopencv::ImageLoader>();
-//    plvRegisterPipelineElement<plvopencv::ImageThreshold>();
 
     //consumers
 }

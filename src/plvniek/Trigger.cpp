@@ -23,8 +23,7 @@
 
 #include "Trigger.h"
 #include <plvcore/Pin.h>
-#include "OpenCVImage.h"
-#include "ActivationTrigger.h"
+#include <plvcore/CvMatDataPin.h>
 #include <opencv/cv.h>
 
 using namespace plv;
@@ -33,24 +32,47 @@ using namespace plvopencv;
 /**
  * Constructor.
  */
-ActivationTrigger::ActivationTrigger() :
+Trigger::Trigger() :
         m_activate(false),
         m_continuous(false)
 {
-    m_inputPin = createInputPin<OpenCVImage>("image_input", this, IInputPin::INPUT_REQUIRED );
-    m_outputPin = createOutputPin<Trigger>( "trigger_output", this );
+    m_inputPin = createCvMatDataInputPin("image_input", this, IInputPin::CONNECTION_REQUIRED );
+    m_outputPin = createOutputPin<bool>( "bool_output", this );
 }
 
 /**
  * Destructor.
  */
-ActivationTrigger::~ActivationTrigger(){}
+Trigger::~Trigger(){}
+
+bool Trigger::getActivate()
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_activate;
+}
+void Trigger::setActivate(bool b)
+{
+    QMutexLocker lock( m_propertyMutex );
+    m_activate = b;
+}
+
+bool Trigger::getContinuous()
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_continuous;
+}
+void Trigger::setContinuous(bool b)
+{
+    QMutexLocker lock( m_propertyMutex );
+    m_continuous = b;
+}
+
 
 /** Mandatory methods. Has nothing to do here. Yet? */
-void ActivationTrigger::init() throw (PipelineException){}
-void ActivationTrigger::deinit() throw(){}
-void ActivationTrigger::start() throw (PipelineException){}
-void ActivationTrigger::stop() throw (PipelineException){}
+void Trigger::init(){}
+void Trigger::deinit() throw(){}
+void Trigger::start(){}
+void Trigger::stop(){}
 
 
 /**
@@ -58,18 +80,16 @@ void ActivationTrigger::stop() throw (PipelineException){}
  * the same value as the activation property. If continuous isn't true then
  * the activation property is automatically set to false.
  */
-void ActivationTrigger::process()
+void Trigger::process()
 {
-    assert(m_inputPin != 0);
-    RefPtr<OpenCVImage> img = m_inputPin ->get();
+    CvMatData img = m_inputPin->get();
 
-    if(!img->isNull())
+    if(img.isValid())
     {
         //send a trigger to the output with the value of activate
-        RefPtr<Trigger> trig = new Trigger( m_activate );
-        m_outputPin->put( trig.getPtr() );
+        m_outputPin->put( m_activate );
 
         //check if it is continuous or not
-        if(m_activate && !m_continuous) setActivate(false);
+        if(m_activate && !m_continuous) updateActivate(false);
     }
 }

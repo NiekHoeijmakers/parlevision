@@ -19,20 +19,20 @@
   * If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef ACTIVATIONTRIGGER_H
-#define ACTIVATIONTRIGGER_H
+#ifndef TRIGGER_H
+#define TRIGGER_H
 
 #include <QVariant>
 
 #include <plvcore/PipelineProcessor.h>
 #include <plvcore/Pin.h>
-#include <plvcore/Types.h>
+
+namespace plv
+{
+    class CvMatDataInputPin;
+}
 
 namespace plvopencv {
-
-    class Pipeline;
-    class OpenCVImage;
-    class Trigger;
 
     /**
      * For every image this proccessor recieves it sends out a boolean signal.
@@ -49,14 +49,13 @@ namespace plvopencv {
      * for a series of images. And requires the user to deactivate the trigger
      * manually.
      */
-    class ActivationTrigger : public plv::PipelineProcessor
+    class Trigger : public plv::PipelineProcessor
     {
         Q_OBJECT
 
         Q_CLASSINFO("author", "Niek Hoeijmakers")
-        Q_CLASSINFO("name", "ActivationTrigger")
+        Q_CLASSINFO("name", "Trigger")
         Q_CLASSINFO("description", "A processor that passes on a boolean value for every received image. "
-                        "The boolean value can be used by other processors that accept it as an activation trigger. "
                         "The trigger is either continuous or one time only.");
 
         Q_PROPERTY( bool activate READ getActivate WRITE setActivate NOTIFY activateChanged  )
@@ -67,30 +66,33 @@ namespace plvopencv {
 
     public:
         /** Constructor/Destructor */
-        ActivationTrigger();
-        virtual ~ActivationTrigger();
+        Trigger();
+        virtual ~Trigger();
 
         /** propery methods */
-        bool getActivate(){ return m_activate; }
-        bool getContinuous(){ return m_continuous; }
+        bool getActivate();
+        void updateActivate(bool b){ setActivate(b); activateChanged(b); }
+
+        bool getContinuous();
+        void updateContinuous(bool b){ setContinuous(b); continuousChanged(b); }
 
     signals:
         void activateChanged (bool newValue);
         void continuousChanged (bool newValue);
 
     public slots:
-        void setActivate(bool b) {m_activate = b; emit(activateChanged(b));}
-        void setContinuous(bool b) {m_continuous = b; emit(continuousChanged(b));}
+        void setActivate(bool b);
+        void setContinuous(bool b);
 
     private:
-        plv::InputPin<OpenCVImage>* m_inputPin;
-        plv::OutputPin<Trigger>* m_outputPin;
+        plv::CvMatDataInputPin* m_inputPin;
+        plv::OutputPin<bool>* m_outputPin;
 
-        bool    m_activate;     //Determines if an activation (true) trigger has to be send. Mostly false.
-        bool    m_continuous;   //Determines if the activation trigger automatically has to be switched off (false).
+        bool    m_activate;     //Determines if an (true) trigger has to be send. Mostly false.
+        bool    m_continuous;   //Determines if the trigger automatically has to be switched off (false).
 
-    };// class ActivationTrigger
+    };// class Trigger
 
 }// namespace plvopencv
 
-#endif // ACTIVATIONTRIGGER_H
+#endif // TRIGGER_H

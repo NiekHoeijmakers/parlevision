@@ -25,12 +25,12 @@
 #include <QVariant>
 
 #include <plvcore/PipelineProcessor.h>
+#include <plvcore/Pin.h>
 #include <plvcore/Enum.h>
 
 namespace plv
 {
     class CvMatDataInputPin;
-    class CvMatDataOutputPin;
 }
 
 namespace plvopencv {
@@ -113,7 +113,7 @@ namespace plvopencv {
 
     private:
         plv::CvMatDataInputPin* m_inputImage;
-        //plv::InputPin<Trigger>* m_inputTrigger;
+        plv::InputPin<bool>* m_inputTrigger;
 
         bool        m_doSave;    //Determines if the input has to be saved. Mostly false.
         QString     m_filename;  //The filename to save the image to.

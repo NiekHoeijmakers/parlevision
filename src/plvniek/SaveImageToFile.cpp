@@ -45,7 +45,7 @@ SaveImageToFile::SaveImageToFile() :
     m_inputImage = createCvMatDataInputPin("image_input", this, IInputPin::CONNECTION_REQUIRED );
     m_inputImage->addAllChannels();
     m_inputImage->addAllDepths();
-    //m_inputTrigger = createInputPin<Trigger>("trigger_input", this, IInputPin::INPUT_OPTIONAL );
+    m_inputTrigger = createInputPin<bool>("trigger_input", this, IInputPin::CONNECTION_OPTIONAL, IInputPin::CONNECTION_SYNCHRONOUS );
 
     m_fileFormat.add("Windows Bitmap - *.bmp");
     m_fileFormat.add("JPEG Files - *.jpg");
@@ -183,14 +183,17 @@ void SaveImageToFile::stop(){}
  */
 void SaveImageToFile::process()
 {
+    if(m_inputTrigger->isConnected())
+        if(!m_inputTrigger->hasData())
+            return;
+
     plv::CvMatData img = m_inputImage->get();
 
     //If the trigger has been connected check if the trigger sent an activation.
-    /*if(m_inputTrigger->isConnected()){
-        RefPtr<Trigger> trig = m_inputTrigger->get();
-        if(trig->getValue())
-            setDoSave(true);
-    }*/
+    if(m_inputTrigger->isConnected()){
+        if(m_inputTrigger->get())
+            updateDoSave(true);
+    }
 
     if(m_doSave)
     {

@@ -14,7 +14,7 @@ DEFINES += PLV_NIEK_PLUGIN_LIBRARY
 
 SOURCES +=  plvniek_plugin.cpp \
             Xor.cpp \
-#		   Trigger.cpp \
+            Trigger.cpp \
 #		   Sum.cpp \
             Split.cpp \
 #		   ScalarToFile.cpp \
@@ -22,25 +22,25 @@ SOURCES +=  plvniek_plugin.cpp \
             Multiply.cpp \
 #		   ImageTypeScaleConversion.cpp \
             SaveImageToFile.cpp \
-#		   ImageThreshold.cpp \
-#		   ImageSequenceLoader.cpp \
+            ImageSequenceLoader.cpp \
             ImageLoader.cpp \
-#		   DistanceTransform.cpp
+#		   DistanceTransform.cpp \
+#                  MedianSmooth.cpp
 		   	   
 
 HEADERS +=  ../../include/plvniek/plvniek_plugin.h \
             ../../include/plvniek/plvniek_global.h \
             ../../include/plvniek/Xor.h \
-#           Trigger.h \
-#           Sum.h \
+            ../../include/plvniek/Trigger.h \
+#                   ../../include/plvniek/Sum.h \
             ../../include/plvniek/Split.h \
-#		    ScalarToFile.h \
-#		    OpenCVScalar.h \
+#		    ../../include/plvniek/ScalarToFile.h \
+#		    ../../include/plvniek/OpenCVScalar.h \
             ../../include/plvniek/Multiply.h \
-#		    ImageTypeScaleConversion.h \
+#		    ../../include/plvniek/ImageTypeScaleConversion.h \
             ../../include/plvniek/SaveImageToFile.h \
-#		    ImageThreshold.h \
-#		    ImageSequenceLoader.h \
+            ../../include/plvniek/ImageSequenceLoader.h \
             ../../include/plvniek/ImageLoader.h \
-#		    DistanceTransform.h
+#		    ../../include/plvniek/DistanceTransform.h \
+#                   ../../include/plvniek/MedianSmooth.h
             

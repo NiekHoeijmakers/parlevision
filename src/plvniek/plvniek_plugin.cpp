@@ -6,8 +6,12 @@
 #include "Xor.h"
 #include "Multiply.h"
 #include "Split.h"
+#include "Trigger.h"
+
 #include "SaveImageToFile.h"
+
 #include "ImageLoader.h"
+#include "ImageSequenceLoader.h"
 
 using namespace plv;
 
@@ -24,10 +28,12 @@ void PlvNiekPlugin::onLoad()
     qDebug() << "PlvNiekPlugin onLoad";
     //Producers
     plvRegisterPipelineElement<plvopencv::ImageLoader>();
+    plvRegisterPipelineElement<plvopencv::ImageSequenceLoader>();
     //Processors
     plvRegisterPipelineElement<plvopencv::Xor>();
     plvRegisterPipelineElement<plvopencv::Multiply>();
     plvRegisterPipelineElement<plvopencv::Split>();
+    plvRegisterPipelineElement<plvopencv::Trigger>();
     //Consumers
     plvRegisterPipelineElement<plvopencv::SaveImageToFile>();
 }
