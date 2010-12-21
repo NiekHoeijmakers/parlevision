@@ -23,7 +23,7 @@
 #define MULTIPLY_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Pin.h>
+//#include <plvcore/Pin.h>
 
 namespace plv
 {

@@ -20,57 +20,45 @@
   */
 
 #include "ImageLoader.h"
-#include "OpenCVImage.h"
 
 #include <QMutexLocker>
 #include <QDebug>
 
-#include <opencv/cv.h>
 #include <opencv/highgui.h>
 #include <string>
-
-#include <plvcore/Pin.h>
+#include <plvcore/CvMatDataPin.h>
 
 using namespace plv;
 using namespace plvopencv;
 
-//#define OUTPUT_PIN_NAME "image_output"
 
 //--- Constructor & Destructor ------------------------------------------------
 ImageLoader::ImageLoader()
 {
     //create the output pin
-    m_outputPin = new OutputPin<OpenCVImage>("image_output", this );
-    addOutputPin( m_outputPin.getPtr() );
+    m_outputPin = createCvMatDataOutputPin("image_output", this );
+    m_outputPin->addAllChannels();
+    m_outputPin->addAllDepths();
 
+    m_loadedImage = CvMatData();
     m_directory = "c:/";
     m_filename = "img1001.bmp";
     m_isReady = false;
 
-    //Attempt to load the image
-    //m_isReady = ObtainImage(m_directory, m_filename);
 }
 
 ImageLoader::~ImageLoader(){}
 
-ImageLoader::ImageLoader(const ImageLoader& other) :
-        PipelineProducer( other )
-{
-    //create the output pin
-    m_outputPin = new OutputPin<OpenCVImage>("image_output", this );
-    addOutputPin( m_outputPin.getPtr() );
-
-    m_directory = other.m_directory;
-    m_filename = other.m_filename;
-    m_isReady = false;
-    //Attempt to load the image
-    //m_isReady = ObtainImage(m_directory, m_filename);
-}
-
 
 //--- ImageLoader methods -----------------------------------------------------
+QString ImageLoader::getFilename()
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_filename;
+}
 void ImageLoader::setFilename(QString filename)
 {
+    QMutexLocker lock( m_propertyMutex );
     //m_filename.clear();
     m_filename = filename;
 
@@ -85,12 +73,16 @@ void ImageLoader::setFilename(QString filename)
         m_isReady = false;
     }
 
-
-    //emit( filenameChanged(m_filename) );
 }
 
+QString ImageLoader::getDirectory()
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_directory;
+}
 void ImageLoader::setDirectory(QString directory)
 {
+    QMutexLocker lock( m_propertyMutex );
     m_directory.clear();
     //replace all '\' characters with '/' characters
     m_directory = directory.replace('\\','/');
@@ -105,8 +97,6 @@ void ImageLoader::setDirectory(QString directory)
         qDebug() << "New directory not a valid directory!";
         m_isReady = false;
     }
-
-    //emit( directoryChanged(m_directory));
 }
 
 bool ImageLoader::validateExtension(QString filename) const {
@@ -161,20 +151,18 @@ bool ImageLoader::ObtainImage(QString directory, QString filename){
     QString path = directory;
     if(!path.endsWith('/')) path.append('/');
     path.append(filename);
-    std::string c_path = path.toStdString();
+    std::string load = path.toStdString();
 
-    m_loadedImage = 0;
 
     //load the image
-    const IplImage* image = cvLoadImage(c_path.c_str(), CV_LOAD_IMAGE_UNCHANGED );
-    if(image != 0){
-        m_loadedImage = OpenCVImageFactory::instance()->getFromBuffer( image );
+    m_loadedImage = CvMatData();
+    cv::Mat& image = m_loadedImage;
+    image = cv::imread(load, CV_LOAD_IMAGE_UNCHANGED);
 
-        //check if the newly loaded image is null or not.
-        if(!m_loadedImage->isNull()){
-            qDebug() << "New image is loaded from path: " << path;
-            return true;
-        }
+    //check if the newly loaded image is null or not.
+    if(m_loadedImage.isValid()){
+        qDebug() << "New image is loaded from path: " << path;
+        return true;
     }
 
     qDebug() << "New image could not be loaded from path: " << path;
@@ -189,22 +177,22 @@ void ImageLoader::process()
 
     //If a propper image has been loaded send it over the pipe.
     if(m_isReady){
-        m_outputPin->put( m_loadedImage.getPtr() );
+        m_outputPin->put( m_loadedImage );
     }
 
 }
 
-void ImageLoader::init() throw (PipelineException)
+void ImageLoader::init()
 {
     ///
     m_isReady = ObtainImage(m_directory, m_filename);
 }
 
 void ImageLoader::deinit() throw(){}
-void ImageLoader::start() throw (PipelineException){}
-void ImageLoader::stop() throw (PipelineException){}
+void ImageLoader::start(){}
+void ImageLoader::stop(){}
 
 bool ImageLoader::isReadyForProcessing() const
 {
-    return( m_loadedImage.isNotNull() );
+    return( m_loadedImage.isValid() );
 }

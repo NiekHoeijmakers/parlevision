@@ -24,7 +24,7 @@ SOURCES +=  plvniek_plugin.cpp \
             SaveImageToFile.cpp \
 #		   ImageThreshold.cpp \
 #		   ImageSequenceLoader.cpp \
-#		   ImageLoader.cpp \
+            ImageLoader.cpp \
 #		   DistanceTransform.cpp
 		   	   
 
@@ -38,9 +38,9 @@ HEADERS +=  ../../include/plvniek/plvniek_plugin.h \
 #		    OpenCVScalar.h \
             ../../include/plvniek/Multiply.h \
 #		    ImageTypeScaleConversion.h \
-            ../../include/SaveImageToFile.h \
+            ../../include/plvniek/SaveImageToFile.h \
 #		    ImageThreshold.h \
 #		    ImageSequenceLoader.h \
-#		    ImageLoader.h \
+            ../../include/plvniek/ImageLoader.h \
 #		    DistanceTransform.h
             

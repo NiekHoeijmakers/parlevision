@@ -25,8 +25,12 @@
 #include <QMutex>
 #include <plvcore/PipelineProducer.h>
 #include <plvcore/Pin.h>
+#include <plvcore/CvMatData.h>
 
-#include "OpenCVImage.h"
+namespace plv
+{
+    class CvMatDataOutputPin;
+}
 
 namespace plvopencv
 {
@@ -35,8 +39,8 @@ namespace plvopencv
         Q_OBJECT
         Q_CLASSINFO("author", "Niek Hoeijmakers")
         Q_CLASSINFO("name", "ImageLoader")
-        Q_CLASSINFO("description", "This pipeline producer loads an image with the given path to the image."
-                    "And each time the process is called it checks if there has been image data loaded and"
+        Q_CLASSINFO("description", "This pipeline producer loads an image with the given path. "
+                    "And each time the process is called it checks if there has been image data loaded and "
                     "sends the image or not.");
 
         Q_PROPERTY( QString filename READ getFilename WRITE setFilename NOTIFY filenameChanged )
@@ -48,27 +52,26 @@ namespace plvopencv
     public:
         ImageLoader();
         virtual ~ImageLoader();
-        ImageLoader(const ImageLoader&);
 
         /** @returns true if a new frame is available */
         bool isReadyForProcessing() const;
 
         /** property methods **/
-        QString getFilename() { return m_filename; }
-        QString getDirectory() { return m_directory; }
+        QString getFilename();
+        void updateFilename(QString s){ setFilename(s); filenameChanged(s); }
+
+        QString getDirectory();
+        void updateDirectory(QString s){ setDirectory(s); directoryChanged(s); }
 
     signals:
         void filenameChanged(QString newValue);
         void directoryChanged(QString newValue);
 
     protected:
-        plv::RefPtr<OpenCVImage> m_loadedImage;
-        plv::RefPtr< plv::OutputPin<OpenCVImage> > m_outputPin;
-
-        //int m_lastProcessedId;
+        plv::CvMatData m_loadedImage;
+        plv::CvMatDataOutputPin* m_outputPin;
 
         QMutex m_processMutex;
-        //QWaitCondition m_frameReady;
 
     public slots:
         /**

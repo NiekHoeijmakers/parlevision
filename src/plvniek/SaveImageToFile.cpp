@@ -21,11 +21,10 @@
 
 #include <QDebug>
 
-#include "ImageToFile.h"
-#include <plvcore/Pin.h>
-#include "OpenCVImage.h"
-#include "Trigger.h"
-#include <opencv/cv.h>
+#include "SaveImageToFile.h"
+
+#include <plvcore/CvMatDataPin.h>
+#include <plvcore/CvMatData.h>
 #include <opencv/highgui.h>
 #include <string>
 
@@ -36,15 +35,17 @@ using namespace plvopencv;
 /**
  * Constructor.
  */
-ImageToFile::ImageToFile() :
+SaveImageToFile::SaveImageToFile() :
         m_doSave(false),
         m_filename("img"),
         m_directory("c:/"),
         m_suffixNr(1001),
         m_autoIncSuf(true)
 {
-    m_inputImage = createInputPin<OpenCVImage>("image_input", this, IInputPin::INPUT_REQUIRED );
-    m_inputTrigger = createInputPin<Trigger>("trigger_input", this, IInputPin::INPUT_OPTIONAL );
+    m_inputImage = createCvMatDataInputPin("image_input", this, IInputPin::CONNECTION_REQUIRED );
+    m_inputImage->addAllChannels();
+    m_inputImage->addAllDepths();
+    //m_inputTrigger = createInputPin<Trigger>("trigger_input", this, IInputPin::INPUT_OPTIONAL );
 
     m_fileFormat.add("Windows Bitmap - *.bmp");
     m_fileFormat.add("JPEG Files - *.jpg");
@@ -61,31 +62,63 @@ ImageToFile::ImageToFile() :
 /**
  * Destructor.
  */
-ImageToFile::~ImageToFile(){}
+SaveImageToFile::~SaveImageToFile(){}
 
+
+bool SaveImageToFile::getDoSave()
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_doSave;
+}
+void SaveImageToFile::setDoSave(bool b)
+{
+    QMutexLocker lock( m_propertyMutex );
+    m_doSave = b;
+}
+
+QString SaveImageToFile::getFilename()
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_filename;
+}
+void SaveImageToFile::setFilename(QString s)
+{
+    QMutexLocker lock( m_propertyMutex );
+    m_filename = s;
+}
+
+QString SaveImageToFile::getDirectory()
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_directory;
+}
 /**
  * Deals with the change of the directory property.
  */
-void ImageToFile::setDirectory(QString s){
+void SaveImageToFile::setDirectory(QString s){
+    QMutexLocker lock( m_propertyMutex );
     //Clear the string before assigning a new value to it.
     m_directory.clear();
     //replace all '\' characters with '/' characters
     m_directory = s.replace('\\','/');
-
     //qDebug() << "New directory selected:" << m_directory;
-
-    emit( directoryChanged(m_directory));
 }
 
+plv::Enum SaveImageToFile::getFileFormat() const
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_fileFormat;
+}
 /**
  * Deals with the change of the fileFomat property.
  */
-void ImageToFile::setFileFormat(plv::Enum e){
+void SaveImageToFile::setFileFormat(plv::Enum e){
+    QMutexLocker lock( m_propertyMutex );
     m_fileFormat = e;
 
     //clear the additional properties
     m_fileExt.clear();
-    switch(e.getSelectedIndex()){
+    switch(m_fileFormat.getSelectedIndex()){
     case 1: //JPEG Files
         m_fileExt = ".jpg";
         break;
@@ -107,15 +140,35 @@ void ImageToFile::setFileFormat(plv::Enum e){
     }
 
     //qDebug() << "File format has changed to: " << m_fileExt;
+}
 
-    emit( fileFormatChanged(m_fileFormat) );
+int SaveImageToFile::getSuffixNr()
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_suffixNr;
+}
+void SaveImageToFile::setSuffixNr(int i)
+{
+    QMutexLocker lock( m_propertyMutex );
+    m_suffixNr = i;
+}
+
+bool SaveImageToFile::getAutoIncSuf()
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_autoIncSuf;
+}
+void SaveImageToFile::setAutoIncSuf(bool b)
+{
+    QMutexLocker lock( m_propertyMutex );
+    m_autoIncSuf = b;
 }
 
 /** Mandatory methods. Has nothing to do here. Yet? */
-void ImageToFile::init() throw (PipelineException){}
-void ImageToFile::deinit() throw(){}
-void ImageToFile::start() throw (PipelineException){}
-void ImageToFile::stop() throw (PipelineException){}
+void SaveImageToFile::init(){}
+void SaveImageToFile::deinit() throw(){}
+void SaveImageToFile::start() {}
+void SaveImageToFile::stop(){}
 
 
 /**
@@ -128,25 +181,16 @@ void ImageToFile::stop() throw (PipelineException){}
  *     # Save image to the correct file format
  *     # Check if the suffixNr needs to be increased and increase it.
  */
-void ImageToFile::process()
+void SaveImageToFile::process()
 {
-    assert(m_inputImage != 0);
-    if(m_inputTrigger->isConnected()){
-        if( !m_inputImage->getConnection()->hasData() || !m_inputTrigger->getConnection()->hasData()){
-            return;
-        }
-    }else if( !m_inputImage->getConnection()->hasData() ){
-        return;
-    }
-
-    RefPtr<OpenCVImage> img = m_inputImage ->get();
+    plv::CvMatData img = m_inputImage->get();
 
     //If the trigger has been connected check if the trigger sent an activation.
-    if(m_inputTrigger->isConnected()){
+    /*if(m_inputTrigger->isConnected()){
         RefPtr<Trigger> trig = m_inputTrigger->get();
         if(trig->getValue())
             setDoSave(true);
-    }
+    }*/
 
     if(m_doSave)
     {
@@ -157,20 +201,21 @@ void ImageToFile::process()
         fn.append(m_filename);
         fn.append(QString::number(m_suffixNr));
         fn.append(m_fileExt);
-        std::string save = fn.toStdString();
+        const std::string save = fn.toStdString();
 
-        const IplImage* saveImg = img->getImage();
+        //open image for reading
+        const cv::Mat& saveImg = img;
 
         //qDebug() << "Writing to" << fn;
 
-        if(!cvSaveImage(save.c_str(), saveImg)){
+        if(!cv::imwrite(save, saveImg)){
             qDebug() << "Something went wrong with writing to a file: " << fn;
         }
 
 
         if(m_autoIncSuf)
-            setSuffixNr(m_suffixNr+1);
+            updateSuffixNr(m_suffixNr+1);
 
-        setDoSave(false);
+        updateDoSave(false);
     }
 }

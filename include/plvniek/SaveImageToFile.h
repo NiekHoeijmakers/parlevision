@@ -19,20 +19,21 @@
   * If not, see <http://www.gnu.org/licenses/>.
   */
 
-#ifndef IMAGETOFILE_H
-#define IMAGETOFILE_H
+#ifndef SAVEIMAGETOFILE_H
+#define SAVEIMAGETOFILE_H
 
 #include <QVariant>
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Pin.h>
-#include <plvcore/Types.h>
+#include <plvcore/Enum.h>
+
+namespace plv
+{
+    class CvMatDataInputPin;
+    class CvMatDataOutputPin;
+}
 
 namespace plvopencv {
-
-    class Pipeline;
-    class OpenCVImage;
-    class Trigger;
 
     /**
      * This proccessor allows a single camera image to be saved to the hard-
@@ -51,12 +52,12 @@ namespace plvopencv {
      *  - TIFF
      * default is set to BMP.
      */
-    class ImageToFile : public plv::PipelineProcessor
+    class SaveImageToFile : public plv::PipelineProcessor
     {
         Q_OBJECT
 
         Q_CLASSINFO("author", "Niek Hoeijmakers")
-        Q_CLASSINFO("name", "ImageToFile")
+        Q_CLASSINFO("name", "Save image to file")
         Q_CLASSINFO("description", "A processor that takes an input and saves it when"
                         " it is told to by either a propperty or a trigger input.");
 
@@ -72,16 +73,27 @@ namespace plvopencv {
 
     public:
         /** Constructor/Destructor */
-        ImageToFile();
-        virtual ~ImageToFile();
+        SaveImageToFile();
+        virtual ~SaveImageToFile();
 
         /** property methods */
-        bool getDoSave(){ return m_doSave; }
-        QString getFilename() { return m_filename; }
-        QString getDirectory() {return m_directory; }
-        plv::Enum getFileFormat() const { return m_fileFormat; }
-        int getSuffixNr() { return m_suffixNr; }
-        bool getAutoIncSuf(){ return m_autoIncSuf; }
+        bool getDoSave();
+        void updateDoSave(bool b){ setDoSave(b); doSaveChanged(b); }
+
+        QString getFilename();
+        void updateFilename(QString s){ setFilename(s); filenameChanged(s); }
+
+        QString getDirectory();
+        void updateDirectory(QString s){ setDirectory(s); directoryChanged(s); }
+
+        plv::Enum getFileFormat() const;
+        void updateFileFormat(plv::Enum e){ setFileFormat(e); fileFormatChanged(e); }
+
+        int getSuffixNr();
+        void updateSuffixNr(int i){ setSuffixNr(i); suffixNrChanged(i); }
+
+        bool getAutoIncSuf();
+        void updateAutoIncSuf(bool b){ setAutoIncSuf(b); autoIncSufChanged(b); }
 
     signals:
         void doSaveChanged (bool newValue);
@@ -92,16 +104,16 @@ namespace plvopencv {
         void autoIncSufChanged (bool newValue);
 
     public slots:
-        void setDoSave(bool b) {m_doSave = b; emit(doSaveChanged(b));}
-        void setFilename(QString s) {m_filename = s; emit(filenameChanged(s));}
+        void setDoSave(bool b);
+        void setFilename(QString s);
         void setDirectory(QString s);
         void setFileFormat(plv::Enum e);
-        void setSuffixNr(int i) {m_suffixNr = i; emit(suffixNrChanged(i));}
-        void setAutoIncSuf(bool b) {m_autoIncSuf = b; emit(autoIncSufChanged(b));}
+        void setSuffixNr(int i);
+        void setAutoIncSuf(bool b);
 
     private:
-        plv::InputPin<OpenCVImage>* m_inputImage;
-        plv::InputPin<Trigger>* m_inputTrigger;
+        plv::CvMatDataInputPin* m_inputImage;
+        //plv::InputPin<Trigger>* m_inputTrigger;
 
         bool        m_doSave;    //Determines if the input has to be saved. Mostly false.
         QString     m_filename;  //The filename to save the image to.
@@ -113,9 +125,9 @@ namespace plvopencv {
         /* Additional properties */
         QString     m_fileExt;   //The filename extension selected through m_fileFormat.
 
-    };//class ImageToFile
+    };//class SaveImageToFile
 
 }//namespace plvopencv
 
 
-#endif // IMAGETOFILE_H
+#endif // SAVEIMAGETOFILE_H
