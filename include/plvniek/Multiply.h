@@ -25,10 +25,14 @@
 #include <plvcore/PipelineProcessor.h>
 #include <plvcore/Pin.h>
 
+namespace plv
+{
+    class CvMatDataInputPin;
+    class CvMatDataOutputPin;
+}
+
 namespace plvopencv
 {
-    class OpenCVImage;
-
     /**
       * Does a per-element multiplication of two images and a scale factor.
       */
@@ -36,10 +40,16 @@ namespace plvopencv
     {
         Q_OBJECT
         Q_CLASSINFO("author", "Niek Hoeijmakers")
-        Q_CLASSINFO("name", "A Mul B")
-        Q_CLASSINFO("description", "A processor that does a per-element multiplication of two images and a scale factor.");
+        Q_CLASSINFO("name", "A multiply B")
+        Q_CLASSINFO("description", "A processor that does a per-element multiplication of two images and a scale factor. "
+                    "Input image B requires the same properties as input image A. The generated output wil have the same "
+                    "properties as input image A. "
+                    "See OpenCV reference for more information. "
+                    "<a href='http://opencv.willowgarage.com/documentation/cpp/core_operations_on_arrays.html#cv-multiply'>"
+                    "http://opencv.willowgarage.com/documentation/cpp/core_operations_on_arrays.html#cv-multiply"
+                    "</a>");
 
-        Q_PROPERTY( double scale READ getScale WRITE setScale NOTIFY scaleChanged  )
+        Q_PROPERTY( double scale READ getScale WRITE setScale NOTIFY scaleChanged )
 
         /** required standard method declaration for plv::PipelineElement */
         PLV_PIPELINE_ELEMENT
@@ -49,18 +59,19 @@ namespace plvopencv
         virtual ~Multiply();
 
         /** propery methods */
-        double getScale() { return m_scale; }
+        double getScale();
+        void updateScale(double d) { setScale(d); scaleChanged(d); }
 
     signals:
         void scaleChanged(double newValue);
 
     public slots:
-        void setScale(double d) {m_scale = d; emit(scaleChanged(m_scale));}
+        void setScale(double d);
 
     private:
-        plv::InputPin<OpenCVImage>* m_inputPin1; // image input A
-        plv::InputPin<OpenCVImage>* m_inputPin2; // image input B
-        plv::OutputPin<OpenCVImage>* m_outputPin; // image output
+        plv::CvMatDataInputPin* m_inputPin1; // image input A
+        plv::CvMatDataInputPin* m_inputPin2; // image input B
+        plv::CvMatDataOutputPin* m_outputPin; // image output
 
         double m_scale;
     };//class Multiply

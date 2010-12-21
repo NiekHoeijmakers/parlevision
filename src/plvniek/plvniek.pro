@@ -12,16 +12,16 @@ include(../../ParleVision.local)
 
 DEFINES += PLV_NIEK_PLUGIN_LIBRARY
 
-SOURCES += plvniek_plugin.cpp \
-           Xor.cpp \
+SOURCES +=  plvniek_plugin.cpp \
+            Xor.cpp \
 #		   Trigger.cpp \
 #		   Sum.cpp \
-#		   Split.cpp \
+            Split.cpp \
 #		   ScalarToFile.cpp \
 #		   OpenCVScalar.cpp \
-#		   Multiply.cpp \
+            Multiply.cpp \
 #		   ImageTypeScaleConversion.cpp \
-#		   ImageToFile.cpp \
+            SaveImageToFile.cpp \
 #		   ImageThreshold.cpp \
 #		   ImageSequenceLoader.cpp \
 #		   ImageLoader.cpp \
@@ -33,12 +33,12 @@ HEADERS +=  ../../include/plvniek/plvniek_plugin.h \
             ../../include/plvniek/Xor.h \
 #           Trigger.h \
 #           Sum.h \
-#		    Split.h \
+            ../../include/plvniek/Split.h \
 #		    ScalarToFile.h \
 #		    OpenCVScalar.h \
-#		    Multiply.h \
+            ../../include/plvniek/Multiply.h \
 #		    ImageTypeScaleConversion.h \
-#		    ImageToFile.h \
+            ../../include/SaveImageToFile.h \
 #		    ImageThreshold.h \
 #		    ImageSequenceLoader.h \
 #		    ImageLoader.h \

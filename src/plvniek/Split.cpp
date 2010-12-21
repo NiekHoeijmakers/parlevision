@@ -22,95 +22,72 @@
 #include <QDebug>
 
 #include "Split.h"
-#include "OpenCVImage.h"
 
-#include <plvcore/Pin.h>
-#include <opencv/cv.h>
-
+#include <plvcore/CvMatDataPin.h>
+#include <plvcore/CvMatData.h>
 using namespace plv;
 using namespace plvopencv;
 
+#include <vector>
+using std::vector;
+
 Split::Split()
 {
-    m_inputPin = createInputPin<OpenCVImage>( "multi_ch_image", this, IInputPin::INPUT_REQUIRED );
-    m_outputPin0 = createOutputPin<OpenCVImage>( "single_ch_image_0", this );
-    m_outputPin1 = createOutputPin<OpenCVImage>( "single_ch_image_1", this );
-    m_outputPin2 = createOutputPin<OpenCVImage>( "single_ch_image_2", this );
-    m_outputPin3 = createOutputPin<OpenCVImage>( "single_ch_image_3", this );
+    m_inputPin = createCvMatDataInputPin( "multi_ch_image", this, IInputPin::CONNECTION_REQUIRED );
+    m_outputPin0 = createCvMatDataOutputPin( "single_ch_image_0", this );
+    m_outputPin1 = createCvMatDataOutputPin( "single_ch_image_1", this );
+    m_outputPin2 = createCvMatDataOutputPin( "single_ch_image_2", this );
+    m_outputPin3 = createCvMatDataOutputPin( "single_ch_image_3", this );
 }
 
 Split::~Split(){}
-void Split::init() throw (PipelineException){}
+void Split::init(){}
 void Split::deinit() throw (){}
-void Split::start() throw (PipelineException){}
-void Split::stop() throw (PipelineException){}
+void Split::start(){}
+void Split::stop(){}
 
 void Split::process()
 {
-    assert(m_inputPin != 0);
-    assert(m_outputPin0 != 0);
-    assert(m_outputPin1 != 0);
-    assert(m_outputPin2 != 0);
-    assert(m_outputPin3 != 0);
+    int i, chnls;
 
-    RefPtr<OpenCVImage> img = m_inputPin->get();
+    plv::CvMatData inImg = m_inputPin->get();
+    chnls = inImg.channels();
 
+    if(chnls < 2)
+    {
+        qDebug() << "Input in the Split processor does not get a multi channel image";
+        throw std::runtime_error("The input image is not a mutli channel image");
+    }
 
     // open input images for reading
-    const IplImage* iplImgIn = img->getImage();
+    const cv::Mat& in = inImg;
 
-    if(iplImgIn->nChannels < 2 || iplImgIn->depth != IPL_DEPTH_8U){
-        throw std::runtime_error("The input image is not a mutli channel image or doesn't have a 8 bit unsigned channels");
-    }
+    //Create the vector with output data
+    vector<CvMatData> outImgs;
+    for(i = 0; i < chnls; ++i )
+        outImgs.push_back(CvMatData::create(inImg.width(),
+                                            inImg.height(),
+                                            inImg.depth(),
+                                            1));
 
-
-    //First create image null-pointers. Because if the image doesn't have 4 channels
-    //the rest of the channels will have to be null pointers.
-    //plv
-    RefPtr<OpenCVImage> imgOut0 = NULL;
-    RefPtr<OpenCVImage> imgOut1 = NULL;
-    RefPtr<OpenCVImage> imgOut2 = NULL;
-    RefPtr<OpenCVImage> imgOut3 = NULL;
-    //opencv
-    IplImage* iplImgOut0 = NULL;
-    IplImage* iplImgOut1 = NULL;
-    IplImage* iplImgOut2 = NULL;
-    IplImage* iplImgOut3 = NULL;
-
-    // get new output images of same depth and size as input image and
-    // open output images for writing dependent on the number of channels in the input
-    switch(iplImgIn->nChannels){
-    case 4:
-        imgOut3 = OpenCVImageFactory::instance()->get(
-                    img->getWidth(), img->getHeight(), img->getDepth(), 1);
-        iplImgOut3 = imgOut3->getImageForWriting();
-    case 3:
-        imgOut2 = OpenCVImageFactory::instance()->get(
-                    img->getWidth(), img->getHeight(), img->getDepth(), 1);
-        iplImgOut2 = imgOut2->getImageForWriting();
-    case 2:
-        imgOut1 = OpenCVImageFactory::instance()->get(
-                    img->getWidth(), img->getHeight(), img->getDepth(), 1);
-        iplImgOut1 = imgOut1->getImageForWriting();
-    default:
-        imgOut0 = OpenCVImageFactory::instance()->get(
-                    img->getWidth(), img->getHeight(), img->getDepth(), 1);
-        iplImgOut0 = imgOut0->getImageForWriting();
-    }
+    //open output images for writing
+    vector<cv::Mat> out;
+    for(i = 0; i < chnls; ++i )
+        out.push_back( outImgs.at(i) );
 
     //Split the image in multiple images
-    cvSplit(iplImgIn, iplImgOut0, iplImgOut1, iplImgOut2, iplImgOut3);
+    cv::split(in, out);
 
     // publish the new image based on the number of channels in the input image
-    switch(iplImgIn->nChannels){
+    switch(chnls){
     case 4:
-        m_outputPin3->put( imgOut3.getPtr() );
+        m_outputPin3->put( outImgs.at(3) );
     case 3:
-        m_outputPin2->put( imgOut2.getPtr() );
+        m_outputPin2->put( outImgs.at(2) );
     case 2:
-        m_outputPin1->put( imgOut1.getPtr() );
+        m_outputPin1->put( outImgs.at(1) );
     default:
-        m_outputPin0->put( imgOut0.getPtr() );
+        m_outputPin0->put( outImgs.at(0) );
     }
 
 }

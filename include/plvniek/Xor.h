@@ -32,8 +32,6 @@ namespace plv
 
 namespace plvopencv
 {
-    //class OpenCVImage;
-
     /**
       * Take a bitwise XOR of two images .
       */

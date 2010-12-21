@@ -24,20 +24,29 @@
 #include <plvcore/PipelineProcessor.h>
 #include <plvcore/Pin.h>
 
+namespace plv
+{
+    class CvMatDataInputPin;
+    class CvMatDataOutputPin;
+}
+
 namespace plvopencv
 {
-    class OpenCVImage;
-
     /**
-      * Take a bitwise XOR of two images .
+      * Take one multi channel image and split it in multiple single channel images.
       */
     class Split : public plv::PipelineProcessor
     {
         Q_OBJECT
         Q_CLASSINFO("author", "Niek Hoeijmakers")
-        Q_CLASSINFO("name", "Split")
-        Q_CLASSINFO("description", "A processor that splits a mutlichannel image into several single channel images."
-                        " The number it will be split in is dependent on the number of channels in the image.");
+        Q_CLASSINFO("name", "Split Image")
+        Q_CLASSINFO("description", "A processor that splits a mutlichannel image into several single channel images. "
+                        "The number it will be split in is dependent on the number of channels in the image. "
+                        "Just connect the outputs for the required number of images. Starting in sequence from the first output."
+                        "See OpenCV reference for more information. "
+                        "<a href='http://opencv.willowgarage.com/documentation/cpp/core_operations_on_arrays.html#cv-split'>"
+                        "http://opencv.willowgarage.com/documentation/cpp/core_operations_on_arrays.html#cv-split"
+                        "</a>");
 
         /** required standard method declaration for plv::PipelineElement */
         PLV_PIPELINE_ELEMENT
@@ -47,11 +56,11 @@ namespace plvopencv
         virtual ~Split();
 
     private:
-        plv::InputPin<OpenCVImage>* m_inputPin; // multi channel image input
-        plv::OutputPin<OpenCVImage>* m_outputPin0; // single channel image output 0
-        plv::OutputPin<OpenCVImage>* m_outputPin1; // single channel image output 1
-        plv::OutputPin<OpenCVImage>* m_outputPin2; // single channel image output 2
-        plv::OutputPin<OpenCVImage>* m_outputPin3; // single channel image output 3
+        plv::CvMatDataInputPin* m_inputPin; // multi channel image input
+        plv::CvMatDataOutputPin* m_outputPin0; // single channel image output 0
+        plv::CvMatDataOutputPin* m_outputPin1; // single channel image output 1
+        plv::CvMatDataOutputPin* m_outputPin2; // single channel image output 2
+        plv::CvMatDataOutputPin* m_outputPin3; // single channel image output 3
     };//class Split
 }//namespace plvopencv
 

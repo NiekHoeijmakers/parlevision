@@ -51,7 +51,9 @@ void Xor::process()
     //TODO check format of images
     if( img1.properties() != img2.properties() )
     {
-
+        //We actually need to convert img2 to the properties of img1 or not?
+        qDebug() << "Images in the XOR processor are not equal in properties";
+        throw std::runtime_error("The two images need to be the same in depth, size and nr of channels");
     }
 
     // open input images for reading
