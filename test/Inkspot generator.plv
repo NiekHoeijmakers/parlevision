@@ -1,0 +1,105 @@
+<pipeline>
+ <elements>
+  <element id="2" name="plvopencv::DistanceTransform">
+   <properties>
+    <distanceType>CV_DIST_L2</distanceType>
+    <maskSize>CV_DIST_MASK_PRECISE</maskSize>
+    <sceneCoordX>625</sceneCoordX>
+    <sceneCoordY>94</sceneCoordY>
+   </properties>
+  </element>
+  <element id="3" name="plvopencv::ImageLoader">
+   <properties>
+    <filename>[Silh]Umbrella_3.png</filename>
+    <directory>C:/local/NiekHoeijmakers/Experiments/Silhouette data/Umbrella</directory>
+    <sceneCoordX>41</sceneCoordX>
+    <sceneCoordY>93</sceneCoordY>
+   </properties>
+  </element>
+  <element id="5" name="plvopencv::Split">
+   <properties>
+    <sceneCoordX>365</sceneCoordX>
+    <sceneCoordY>94</sceneCoordY>
+   </properties>
+  </element>
+  <element id="6" name="plvopencv::ImageThreshold">
+   <properties>
+    <method>CV_THRESH_BINARY_INV</method>
+    <threshold>1</threshold>
+    <maxValue>255</maxValue>
+    <sceneCoordX>211</sceneCoordX>
+    <sceneCoordY>93</sceneCoordY>
+   </properties>
+  </element>
+  <element id="8" name="plvopencv::ImageTypeScaleConversion">
+   <properties>
+    <type>CV_8U</type>
+    <scale>1</scale>
+    <shift>0</shift>
+    <sceneCoordX>886</sceneCoordX>
+    <sceneCoordY>97</sceneCoordY>
+   </properties>
+  </element>
+  <element id="9" name="plvopencv::ImageThreshold">
+   <properties>
+    <method>CV_THRESH_BINARY</method>
+    <threshold>1</threshold>
+    <maxValue>255</maxValue>
+    <sceneCoordX>1129</sceneCoordX>
+    <sceneCoordY>99</sceneCoordY>
+   </properties>
+  </element>
+ </elements>
+ <connections>
+  <connection>
+   <sink>
+    <pinName>8U_1CH_image</pinName>
+    <processorId>2</processorId>
+   </sink>
+   <source>
+    <pinName>single_ch_image_0</pinName>
+    <processorId>5</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>input</pinName>
+    <processorId>6</processorId>
+   </sink>
+   <source>
+    <pinName>image_output</pinName>
+    <processorId>3</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>multi_ch_image</pinName>
+    <processorId>5</processorId>
+   </sink>
+   <source>
+    <pinName>output</pinName>
+    <processorId>6</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>image_input</pinName>
+    <processorId>8</processorId>
+   </sink>
+   <source>
+    <pinName>32F_1CH_image</pinName>
+    <processorId>2</processorId>
+   </source>
+  </connection>
+  <connection>
+   <sink>
+    <pinName>input</pinName>
+    <processorId>9</processorId>
+   </sink>
+   <source>
+    <pinName>image_output</pinName>
+    <processorId>8</processorId>
+   </source>
+  </connection>
+ </connections>
+</pipeline>

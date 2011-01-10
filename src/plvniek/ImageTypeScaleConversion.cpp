@@ -42,13 +42,13 @@ ImageTypeScaleConversion::ImageTypeScaleConversion() :
     m_outputPin = createCvMatDataOutputPin( "image_output", this );
 
     PLV_ENUM_ADD( m_type, NEGATIVE );
-    PLV_ENUM_ADD( m_type, IPL_DEPTH_8U );
-    PLV_ENUM_ADD( m_type, IPL_DEPTH_8S );
-    PLV_ENUM_ADD( m_type, IPL_DEPTH_16U );
-    PLV_ENUM_ADD( m_type, IPL_DEPTH_16S );
-    PLV_ENUM_ADD( m_type, IPL_DEPTH_32S );
-    PLV_ENUM_ADD( m_type, IPL_DEPTH_32F );
-    PLV_ENUM_ADD( m_type, IPL_DEPTH_64F );
+    PLV_ENUM_ADD( m_type, CV_8U );
+    PLV_ENUM_ADD( m_type, CV_8S );
+    PLV_ENUM_ADD( m_type, CV_16U );
+    PLV_ENUM_ADD( m_type, CV_16S );
+    PLV_ENUM_ADD( m_type, CV_32S );
+    PLV_ENUM_ADD( m_type, CV_32F );
+    PLV_ENUM_ADD( m_type, CV_64F );
 }
 
 ImageTypeScaleConversion::~ImageTypeScaleConversion(){}

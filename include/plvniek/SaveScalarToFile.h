@@ -2,7 +2,7 @@
   * Copyright (C)2010 by Michel Jansen and Richard Loos
   * All rights reserved.
   *
-  * This file is part of the plvopencv module of ParleVision.
+  * This file is part of the plvniek module of ParleVision.
   *
   * ParleVision is free software: you can redistribute it and/or modify
   * it under the terms of the GNU General Public License as published by
@@ -18,22 +18,25 @@
   * of this software package directory in the file LICENSE.LGPL.
   * If not, see <http://www.gnu.org/licenses/>.
   */
-#ifndef SCALARTOFILE_H
-#define SCALARTOFILE_H
+#ifndef SAVESCALARTOFILE_H
+#define SAVESCALARTOFILE_H
 
 #include <plvcore/PipelineProcessor.h>
 #include <plvcore/Pin.h>
+#include <plvcore/Enum.h>
+#include <opencv/cv.h>
+
+Q_DECLARE_METATYPE( cv::Scalar );
 
 namespace plvopencv
 {
-    class OpenCVScalar;
-
     /**
       * Take a bitwise ScalarToFile of two images .
       */
-    class ScalarToFile : public plv::PipelineProcessor
+    class SaveScalarToFile : public plv::PipelineProcessor
     {
         Q_OBJECT
+        Q_DISABLE_COPY( SaveScalarToFile )
         Q_CLASSINFO("author", "Niek Hoeijmakers")
         Q_CLASSINFO("name", "Save Scalar To File")
         Q_CLASSINFO("description", "A processor that saves the data of an incomming scalar to a file. It does not overwrite a file, but instead appends to the file."
@@ -49,14 +52,14 @@ namespace plvopencv
         PLV_PIPELINE_ELEMENT
 
     public:
-        ScalarToFile();
-        virtual ~ScalarToFile();
+        SaveScalarToFile();
+        virtual ~SaveScalarToFile();
 
         /** property methods */
-        bool getDoSave(){ return m_doSave; }
-        QString getFilename() { return m_filename; }
-        QString getDirectory() {return m_directory; }
-        plv::Enum getFileFormat() const { return m_fileFormat; }
+        bool getDoSave();
+        QString getFilename();
+        QString getDirectory();
+        plv::Enum getFileFormat() const;
 
     signals:
         void doSaveChanged (bool newValue);
@@ -64,14 +67,20 @@ namespace plvopencv
         void directoryChanged(QString newValue);
         void fileFormatChanged(plv::Enum newValue);
 
-    public slots:
-        void setDoSave(bool b) {m_doSave = b; emit(doSaveChanged(m_doSave));}
+    public slots: void setDoSave(bool b);
+
         void setFilename(QString s);
         void setDirectory(QString s);
         void setFileFormat(plv::Enum e);
 
     private:
-        plv::InputPin<OpenCVScalar>* m_inputPin;
+        plv::InputPin<cv::Scalar>* m_inputPin;
+        //Moet toch nog iets verzinnen op het bewaren van channel info.
+        //Uit Scalar zelf kan je niet zien of de waarde van alle elementen
+        //ook op iets nuttigs is gebasseerd. Is de waarde > 0.0 dan is het
+        //nuttig. Maar is het == 0.0 dan weet je het niet zeker, omdat 0.0
+        //de initializatie waarde van een cv::Scalar is. Maar ook de som
+        //van alle elementen in een kanaal als het kanaal gebruikt wordt.
 
         bool        m_doSave;
         QString     m_filename;
@@ -79,18 +88,19 @@ namespace plvopencv
         plv::Enum   m_fileFormat;
 
         /* Additional properties */
-        QString     m_fileExt;
+        QString             m_fileExt;
+        QVector<cv::Scalar> m_data;
         int         m_counter;
-        int         m_insert;
-        OpenCVScalar* m_data[100];
+        //int         m_insert;
+        //OpenCVScalar* m_data[100];
 
         bool dumpData();
         bool writeText(QString path);
         bool writeCSV(QString path);
         bool writeBinary(QString path);
 
-    };//class ScalarToFile
+    };//class SaveScalarToFile
 }//namespace plvopencv
 
 
-#endif // SCALARTOFILE_H
+#endif // SAVESCALARTOFILE_H

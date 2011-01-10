@@ -3,7 +3,7 @@
   * Copyright (C)2010 by Michel Jansen and Richard Loos
   * All rights reserved.
   *
-  * This file is part of the plvopencv module of ParleVision.
+  * This file is part of the plvniek module of ParleVision.
   *
   * ParleVision is free software: you can redistribute it and/or modify
   * it under the terms of the GNU General Public License as published by
@@ -22,10 +22,7 @@
 
 #include <QDebug>
 
-#include "ScalarToFile.h"
-#include "OpenCVScalar.h"
-
-#include <plvcore/Pin.h>
+#include "SaveScalarToFile.h"
 #include <opencv/cv.h>
 
 #include <string>
@@ -41,14 +38,13 @@ ofstream outFile;
 long prcsn;
 
 //--- Constructor & Destructor ------------------------------------------------
-ScalarToFile::ScalarToFile():
+SaveScalarToFile::SaveScalarToFile():
         m_doSave(false),
         m_filename("dump"),
         m_directory("c:/"),
-        m_counter(0),
-        m_insert(0)
+        m_counter(0)
 {
-    m_inputPin = createInputPin<OpenCVScalar>( "scalar_input", this, IInputPin::INPUT_REQUIRED );
+    m_inputPin = createInputPin<cv::Scalar>( "scalar_input", this, IInputPin::CONNECTION_REQUIRED );
 
     m_fileFormat.add("Comma Separated Values - *.csv");
     m_fileFormat.add("Plain Text - *.txt");
@@ -59,56 +55,56 @@ ScalarToFile::ScalarToFile():
     prcsn = outFile.precision();
 }
 
-ScalarToFile::~ScalarToFile(){}
+SaveScalarToFile::~SaveScalarToFile(){}
 
 //--- Mandatory functions -----------------------------------------------------
-void ScalarToFile::init() throw (PipelineException){}
-void ScalarToFile::deinit() throw ()
+void SaveScalarToFile::init(){}
+void SaveScalarToFile::deinit() throw ()
 {
-    if(m_insert > 0)
+    if(!m_data.isEmpty())
     {
         if(!dumpData())
         {
             qDebug() << "Something went wrong with dumping the data to the old file!"
                     << " Left over data is discarded.";
-            m_insert = 0;
         }
     }
+    m_data.clear();
     m_counter = 0;
 }
-void ScalarToFile::start() throw (PipelineException){}
+void SaveScalarToFile::start(){}
 
-void ScalarToFile::stop() throw (PipelineException)
+void SaveScalarToFile::stop()
 {
-    if(m_insert > 0)
+    if(!m_data.isEmpty())
     {
         if(!dumpData())
         {
             qDebug() << "Something went wrong with dumping the data to the old file!"
                     << " Left over data is discarded.";
-            m_insert = 0;
         }
     }
+    m_data.clear();
     m_counter = 0;
 }
 
-void ScalarToFile::process()
+void SaveScalarToFile::process()
 {
-    assert(m_inputPin != 0);
-    RefPtr<OpenCVScalar> scale = m_inputPin->get();
+    cv::Scalar scale = m_inputPin->get();
 
     if(m_doSave)
     {
-        m_data[m_insert] = scale->deepCopy();
+        m_data.append(scale);
+        ++m_counter;
 
-        m_counter++;
-        if(++m_insert >= 100)
+        if(m_data.size() >= 100)
         {
             if(!dumpData())
             {
                 qDebug() << "Something went wrong with dumping the data to the old file!"
                         << " Left over data is discarded.";
-                m_insert = 0;
+                m_counter -= m_data.size();
+                m_data.clear();
             }
         }
     }
@@ -117,73 +113,123 @@ void ScalarToFile::process()
 
 //--- Class funtions ----------------------------------------------------------
 
-void ScalarToFile::setFilename(QString s)
+bool SaveScalarToFile::getDoSave()
 {
+    QMutexLocker lock( m_propertyMutex );
+    return m_doSave;
+}
+
+QString SaveScalarToFile::getFilename()
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_filename;
+}
+
+QString SaveScalarToFile::getDirectory()
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_directory;
+}
+
+plv::Enum SaveScalarToFile::getFileFormat() const
+{
+    QMutexLocker lock( m_propertyMutex );
+    return m_fileFormat;
+}
+
+void SaveScalarToFile::setDoSave(bool b)
+{
+    QMutexLocker lock( m_propertyMutex );
+    m_doSave = b;
+}
+
+void SaveScalarToFile::setFilename(QString s)
+{
+    QMutexLocker lock( m_propertyMutex );
     //first check if there is still some data to be saved in the previous file
-    if(m_insert > 0)
+    if(!m_data.isEmpty())
     {
         if(!dumpData())
         {
             qDebug() << "Something went wrong with dumping the data to the old file!"
                     << " Left over data is discarded.";
-            m_insert = 0;
+            m_counter -= m_data.size();
+            m_data.clear();
         }
     }
 
-    m_filename = s;
-    m_counter = 0;
-    emit(filenameChanged(m_filename));
+    if(s.contains('\\') || s.contains('/'))
+    {
+        emit(filenameChanged(m_filename));
+    }
+    else
+    {
+        m_filename = s;
+        m_counter = 0;
+    }
 }
 
-void ScalarToFile::setDirectory(QString s)
+void SaveScalarToFile::setDirectory(QString s)
 {
+    QMutexLocker lock( m_propertyMutex );
     //first check if there is still some data to be saved in the previous file
-    if(m_insert > 0)
+    if(!m_data.isEmpty())
     {
         if(!dumpData())
         {
             qDebug() << "Something went wrong with dumping the data to the old file! Left over data is discarded.";
-            m_insert = 0;
+            m_counter -= m_data.size();
+            m_data.clear();
         }
     }
 
+    m_counter = 0;
     m_directory.clear();
-    m_directory = s.replace('\\','/');
-    m_counter = 0;
-    emit(directoryChanged(m_directory));
+    if(s.contains('\\'))
+    {
+        m_directory = s.replace('\\','/');
+        emit(directoryChanged(m_directory));
+    }
+    else
+    {
+        m_directory = s;
+    }
 }
 
-void ScalarToFile::setFileFormat(plv::Enum e)
+void SaveScalarToFile::setFileFormat(plv::Enum e)
 {
+    QMutexLocker lock( m_propertyMutex );
     //first check if there is still some data to be saved in the previous file
-    if(m_insert > 0)
+    if(!m_data.isEmpty())
     {
         if(!dumpData())
         {
             qDebug() << "Something went wrong with dumping the data to the old file! Left over data is discarded.";
-            m_insert = 0;
+            m_counter -= m_data.size();
+            m_data.clear();
         }
     }
-    m_counter = 0;
-    m_fileFormat = e;
-    m_fileExt.clear();
-    switch(e.getSelectedIndex())
-    {
-    case 0: //CSV
-        m_fileExt = ".csv";
-        break;
-    case 1: //Plain text
-        m_fileExt = ".txt";
-        break;
-    default: //Binary dump
-        m_fileExt = ".dat";
-        break;
-    }
 
-    emit(fileFormatChanged(m_fileFormat));
+    if(m_fileFormat.getSelectedValue() != e.getSelectedValue()){
+        m_fileFormat = e;
+        m_counter = 0;
+        m_fileExt.clear();
+        switch(e.getSelectedIndex())
+        {
+        case 0: //CSV
+            m_fileExt = ".csv";
+            break;
+        case 1: //Plain text
+            m_fileExt = ".txt";
+            break;
+        default: //Binary dump
+            m_fileExt = ".dat";
+            break;
+        }
+    }
 }
 
-bool ScalarToFile::dumpData()
+bool SaveScalarToFile::dumpData()
 {
     //build path
     QString l_path = m_directory;
@@ -207,23 +253,17 @@ bool ScalarToFile::dumpData()
         break;
     }
 
-    //reset the index pointer and delete all the Scalar data
+    //clear all data if a success
     if(success)
     {
-        for(int i = 0; i < m_insert; i++)
-        {
-            OpenCVScalar* sp = m_data[i];
-            m_data[i] = NULL;
-            delete sp;
-        }
-        m_insert = 0;
+        m_data.clear();
     }
 
     //return the succes
     return success;
 }
 
-bool ScalarToFile::writeText(QString path)
+bool SaveScalarToFile::writeText(QString path)
 {
     //open output file
     std::string l_path = path.toStdString();
@@ -237,14 +277,14 @@ bool ScalarToFile::writeText(QString path)
     }
 
     outFile << std::fixed << std::setprecision(3);
-    for(int i = 0; i < m_insert; i++)
+    for(int i = 0; i < m_data.size(); i++)
     {
-        OpenCVScalar* sptr = m_data[i];
-        outFile << m_counter - m_insert + i << " = [ " << sptr->getValueAtIndex(0) << " , "
-                    << sptr->getValueAtIndex(1) << " , "
-                    << sptr->getValueAtIndex(2) << " , "
-                    << sptr->getValueAtIndex(3) << " ]  channels = "
-                    << sptr->getNumChannels() << "\n";
+        cv::Scalar scale = m_data.at(i);
+        outFile << m_counter - m_data.size() + i << " = [ "
+                    << scale[0] << " , "
+                    << scale[1] << " , "
+                    << scale[2] << " , "
+                    << scale[3] << " ]\n";
 
         if(!outFile)
             return false;
@@ -254,7 +294,7 @@ bool ScalarToFile::writeText(QString path)
     return true;
 }
 
-bool ScalarToFile::writeCSV(QString path)
+bool SaveScalarToFile::writeCSV(QString path)
 {
     std::string l_path = path.toStdString();
 
@@ -267,14 +307,14 @@ bool ScalarToFile::writeCSV(QString path)
     }
 
     outFile << std::fixed << std::setprecision(prcsn);
-    for(int i = 0; i < m_insert; i++)
+    for(int i = 0; i < m_data.size(); i++)
     {
-        OpenCVScalar* sptr = m_data[i];
-        outFile << m_counter - m_insert + i << ";" << sptr->getValueAtIndex(0) << ";"
-                    << sptr->getValueAtIndex(1) << ";"
-                    << sptr->getValueAtIndex(2) << ";"
-                    << sptr->getValueAtIndex(3) << ";"
-                    << sptr->getNumChannels() << ";\n";
+        cv::Scalar scale = m_data.at(i);
+        outFile << m_counter - m_data.size() + i << ";"
+                    << scale[0] << ";"
+                    << scale[1] << ";"
+                    << scale[2] << ";"
+                    << scale[3] << ";\n";
 
         if(!outFile)
             return false;
@@ -284,11 +324,11 @@ bool ScalarToFile::writeCSV(QString path)
     return true;
 }
 
-bool ScalarToFile::writeBinary(QString path)
+bool SaveScalarToFile::writeBinary(QString path)
 {
     std::string l_path = path.toStdString();
 
-    outFile.open(l_path.c_str(), std::ios::app |std::ios::binary);
+    outFile.open(l_path.c_str(), std::ios::app | std::ios::binary);
     if(!outFile)
     {
         qDebug() << "Problems occured during the opening of the file: "
@@ -296,10 +336,11 @@ bool ScalarToFile::writeBinary(QString path)
         return false;
     }
 
-    for(int i = 0; i < m_insert; i++)
+    for(int i = 0; i < m_data.size(); i++)
     {
-        OpenCVScalar* sptr = m_data[i];
-        outFile.write( reinterpret_cast< const char * >(sptr), sizeof(*sptr));
+        cv::Scalar scale = m_data.at(i);
+        outFile.write( reinterpret_cast< const char * >(&scale),
+                       sizeof(scale));
 
         if(!outFile)
             return false;

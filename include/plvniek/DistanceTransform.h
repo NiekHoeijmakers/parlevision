@@ -2,7 +2,7 @@
   * Copyright (C)2010 by Michel Jansen and Richard Loos
   * All rights reserved.
   *
-  * This file is part of the plvopencv module of ParleVision.
+  * This file is part of the plvniek module of ParleVision.
   *
   * ParleVision is free software: you can redistribute it and/or modify
   * it under the terms of the GNU General Public License as published by
@@ -22,12 +22,16 @@
 #define DISTANCETRANSFORM_H
 
 #include <plvcore/PipelineProcessor.h>
-#include <plvcore/Pin.h>
+#include <plvcore/Enum.h>
+
+namespace plv
+{
+    class CvMatDataInputPin;
+    class CvMatDataOutputPin;
+}
 
 namespace plvopencv
 {
-    class OpenCVImage;
-
     /**
       * This processor takes one image and then calculates the distance to the
       * closest zero pixel for all non-zero pixels of the input image. The cal-
@@ -36,21 +40,21 @@ namespace plvopencv
     class DistanceTransform : public plv::PipelineProcessor
     {
         Q_OBJECT
+        Q_DISABLE_COPY( DistanceTransform )
         Q_CLASSINFO("author", "Niek Hoeijmakers")
         Q_CLASSINFO("name", "Distance Transformation")
         Q_CLASSINFO("description", "A processor that calculates the distance of a non-zero pixel to the closest zero pixel.<br> "
                     "<b>requirement:</b> The input image is an 8-bit single channel image (preferably binary).<br> "
                     "See OpenCV reference for meaning of parameters. "
-                    "<a href='http://opencv.willowgarage.com/documentation/miscellaneous_image_transformations.html#disttransform'>"
-                    "http://opencv.willowgarage.com/documentation/miscellaneous_image_transformations.html#disttransform"
+                    "<a href='http://opencv.willowgarage.com/documentation/cpp/miscellaneous_image_transformations.html#cv-distancetransform'>"
+                    "http://opencv.willowgarage.com/documentation/cpp/miscellaneous_image_transformations.html#cv-distancetransform"
                     "</a>");
 
-        //Q_PROPERTY( bool useLabels READ getUseLabels WRITE setUseLabels NOTIFY useLabelsChanged  )
         Q_PROPERTY( plv::Enum distanceType READ getDistanceType WRITE setDistanceType NOTIFY distanceTypeChanged  )
         Q_PROPERTY( plv::Enum maskSize READ getMaskSize WRITE setMaskSize NOTIFY maskSizeChanged  )
-        Q_PROPERTY( double uMaskValue1 READ getUMaskValue1 WRITE setUMaskValue1 NOTIFY uMaskValue1Changed  )
-        Q_PROPERTY( double uMaskValue2 READ getUMaskValue2 WRITE setUMaskValue2 NOTIFY uMaskValue2Changed  )
-        Q_PROPERTY( double uMaskValue3 READ getUMaskValue3 WRITE setUMaskValue3 NOTIFY uMaskValue3Changed  )
+        //Q_PROPERTY( double uMaskValue1 READ getUMaskValue1 WRITE setUMaskValue1 NOTIFY uMaskValue1Changed  )
+        //Q_PROPERTY( double uMaskValue2 READ getUMaskValue2 WRITE setUMaskValue2 NOTIFY uMaskValue2Changed  )
+        //Q_PROPERTY( double uMaskValue3 READ getUMaskValue3 WRITE setUMaskValue3 NOTIFY uMaskValue3Changed  )
 
         /** required standard method declaration for plv::PipelineElement */
         PLV_PIPELINE_ELEMENT
@@ -61,42 +65,37 @@ namespace plvopencv
         virtual ~DistanceTransform();
 
         /** property methods */
-        //bool getUseLabels() { return m_useLabels; }
-        plv::Enum getDistanceType(){ return m_distanceType; }
-        plv::Enum getMaskSize(){ return m_maskSize; }
-        double getUMaskValue1() { return m_uMaskValue1; }
-        double getUMaskValue2() { return m_uMaskValue2; }
-        double getUMaskValue3() { return m_uMaskValue3; }
+        plv::Enum getDistanceType();
+        plv::Enum getMaskSize();
+        //double getUMaskValue1() { return m_uMaskValue1; }
+        //double getUMaskValue2() { return m_uMaskValue2; }
+        //double getUMaskValue3() { return m_uMaskValue3; }
 
     signals:
-        //void useLabelsChanged(bool newValue);
         void distanceTypeChanged(plv::Enum newValue);
         void maskSizeChanged(plv::Enum newValue);
-        void uMaskValue1Changed(double newValue);
-        void uMaskValue2Changed(double newValue);
-        void uMaskValue3Changed(double newValue);
+        //void uMaskValue1Changed(double newValue);
+        //void uMaskValue2Changed(double newValue);
+        //void uMaskValue3Changed(double newValue);
 
     public slots:
-        //void setUseLabels(bool b) { m_useLabels = b; emit(useLabelsChanged(m_useLabels)); }
         void setDistanceType(plv::Enum e);
         void setMaskSize(plv::Enum e);
-        void setUMaskValue1(double f) { m_uMaskValue1 = f; emit(uMaskValue1Changed(m_uMaskValue1)); }
-        void setUMaskValue2(double f) { m_uMaskValue2 = f; emit(uMaskValue2Changed(m_uMaskValue2)); }
-        void setUMaskValue3(double f) { m_uMaskValue3 = f; emit(uMaskValue3Changed(m_uMaskValue3)); }
+        //void setUMaskValue1(double f) { m_uMaskValue1 = f; emit(uMaskValue1Changed(m_uMaskValue1)); }
+        //void setUMaskValue2(double f) { m_uMaskValue2 = f; emit(uMaskValue2Changed(m_uMaskValue2)); }
+        //void setUMaskValue3(double f) { m_uMaskValue3 = f; emit(uMaskValue3Changed(m_uMaskValue3)); }
 
 
     private:
-        plv::InputPin<OpenCVImage>* m_inputPin; // image input
-        plv::OutputPin<OpenCVImage>* m_outputPin1; // image output (32-bit floating-point single-channel)
-        //plv::OutputPin<OpenCVImage>* m_outputPin2; // image output (integer labels)
+        plv::CvMatDataInputPin* m_inputPin; // image input
+        plv::CvMatDataOutputPin* m_outputPin; // image output (32-bit floating-point single-channel)
 
         /** property variables */
-        //bool m_useLabels;
         plv::Enum m_distanceType;
         plv::Enum m_maskSize;
-        double m_uMaskValue1;
-        double m_uMaskValue2;
-        double m_uMaskValue3;
+        //double m_uMaskValue1;
+        //double m_uMaskValue2;
+        //double m_uMaskValue3;
 
     };//class DistanceTransform
 }//namespace plvopencv
